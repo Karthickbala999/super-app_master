@@ -178,12 +178,11 @@ function OTP() {
         return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
     };
 
-    const copyOtpToClipboard = () => {
+    const copyOtpToClipboard = (e) => {
         if (devOtp) {
             navigator.clipboard.writeText(devOtp).then(() => {
                 // Show success feedback
-                const originalText = 'Copy Code';
-                const button = event.target.closest('button');
+                const button = e.target.closest('button');
                 if (button) {
                     button.innerHTML = `
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +192,7 @@ function OTP() {
                     `;
                     button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     button.classList.add('bg-green-600');
-                    
+
                     setTimeout(() => {
                         button.innerHTML = `
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,7 +289,7 @@ function OTP() {
                         <span>Show Console OTP</span>
                     </button>
                 )}
-                
+
                 {/* OTP Instruction */}
                 <p className="text-sm text-gray-600 text-left mt-6">
                     Please enter the verification code we've sent to your <br />

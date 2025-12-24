@@ -7,31 +7,33 @@ const API_CONFIG = {
 
   // Base URL - will be set from environment variable
   BASE_URL: (() => {
-    // Check if we're in production (Vercel)
+    // Check if we're in production
     const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const envVar = process.env.REACT_APP_API_URL;
 
     console.log('🔧 API Config Debug:', {
       hostname: window.location.hostname,
       isProduction,
-      envVar: process.env.REACT_APP_API_URL,
+      envVar,
       NODE_ENV: process.env.NODE_ENV
     });
 
     if (isProduction) {
-      console.log('🔧 Using production URL: https://super-app-1-do45.onrender.com');
-      return 'https://super-app-1-do45.onrender.com';
+      const prodUrl = envVar || 'https://backend.citybells.in';
+      console.log('🔧 Using production URL:', prodUrl);
+      return prodUrl;
     }
 
     // Development fallback
-    const devUrl = (process.env.REACT_APP_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+    const devUrl = envVar || 'http://localhost:5000';
     console.log('🔧 Using development URL:', devUrl);
     return devUrl;
-  })().replace(/\/$/, ''), // Ensure no trailing slash
+  })().toString().replace(/\/$/, ''), // Ensure no trailing slash and safe string conversion
 
   // Debug logging
   DEBUG: {
     ENV_VAR: process.env.REACT_APP_API_URL,
-    FINAL_URL: (process.env.REACT_APP_API_URL || 'http://localhost:3000').replace(/\/$/, ''),
+    FINAL_URL: (process.env.REACT_APP_API_URL || 'https://backend.citybells.in').replace(/\/$/, ''),
     NODE_ENV: process.env.NODE_ENV
   },
 

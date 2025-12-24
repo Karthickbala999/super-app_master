@@ -24,7 +24,7 @@ const GOOGLE_MAPS_API_KEY = API_CONFIG.GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
 const mapContainerStyle = { width: '100%', height: '100%' };
 const defaultCenter = { lat: 13.0827, lng: 80.2707 };
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://backend.citybells.in';
 
 const BookService = () => {
   const navigate = useNavigate();

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_CONFIG from '../../config/api.config';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -34,8 +35,8 @@ const UrbanServicesHome = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Base URL for API and images
-  const API_BASE_URL = 'http://localhost:3000';
+  // Base URL for images
+  const API_BASE_URL = API_CONFIG.BASE_URL;
 
   useEffect(() => {
     fetchCategories();
@@ -70,11 +71,15 @@ const UrbanServicesHome = () => {
       console.log('Fetching categories from: /api/urban-services/categories?active=true');
       const response = await axios.get('/api/urban-services/categories?active=true');
       console.log('Categories API response:', response);
-      console.log('Categories data:', response.data.data);
-      setCategories(response.data.data);
+      if (response.data && response.data.data) {
+        setCategories(response.data.data);
+      } else {
+        console.warn('Categories data is missing in response');
+        setCategories([]);
+      }
     } catch (error) {
       console.error('Error fetching categories:', error);
-      console.error('Error response:', error.response);
+      setCategories([]); // Fallback to empty array on error
     } finally {
       setLoading(false);
     }
@@ -91,8 +96,8 @@ const UrbanServicesHome = () => {
     { name: 'General Home Maintenance', icon: <Home className="w-8 h-8" />, color: 'bg-purple-50 text-purple-600', slug: 'home-maintenance', description: 'Complete home care' },
   ];
 
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = (categories || []).filter(category =>
+    category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleCategoryClick = (category) => {
