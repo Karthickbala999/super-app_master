@@ -26,6 +26,8 @@ import {
   Zap
 } from 'lucide-react';
 import CityBellLogo from '../../Images/Logo/CityBellLogo.png';
+import DeepCleaningBanner from '../../Images/Banners/deep_cleaning.png';
+
 
 const UrbanServicesHome = () => {
   const [categories, setCategories] = useState([]);
@@ -66,20 +68,69 @@ const UrbanServicesHome = () => {
     }
   };
 
+  // 39 Categories as requested
+  const all39Categories = [
+    { _id: '1', name: 'AC & Appliance Repair', slug: 'appliance-repair', description: 'Expert repair services', minPrice: 199, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80' },
+    { _id: '2', name: 'AC Service & Repair', slug: 'ac-service', description: 'Professional AC installation & repair', minPrice: 299, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1599708146141-37dd5ad4f24c?auto=format&fit=crop&w=500&q=80' },
+    { _id: '3', name: 'Bike Mechanic', slug: 'bike-repair', description: 'Bike repair and maintenance', minPrice: 199, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=500&q=80' },
+    { _id: '4', name: 'CCTV Camera Installation', slug: 'cctv-service', description: 'CCTV installation and repair', minPrice: 499, estimatedDuration: 150, image: 'https://images.unsplash.com/photo-1557597774-9d2739f85a94?auto=format&fit=crop&w=500&q=80' },
+    { _id: '5', name: 'Car Mechanic', slug: 'car-mechanic', description: 'Professional car repair and service', minPrice: 299, estimatedDuration: 120, image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=500&q=80' },
+    { _id: '6', name: 'Car Washing', slug: 'car-washing', description: 'Professional car washing services', minPrice: 199, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=500&q=80' },
+    { _id: '7', name: 'Cleaning & Pest Control', slug: 'cleaning', description: 'Deep cleaning & pest control', minPrice: 299, estimatedDuration: 120, image: 'https://images.unsplash.com/photo-1581578731548-c64695ce6958?auto=format&fit=crop&w=500&q=80' },
+    { _id: '8', name: 'Computer / Laptop Service', slug: 'laptop-repair', description: 'Computer and laptop repair', minPrice: 199, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=500&q=80' },
+    { _id: '9', name: 'Electrician Services', slug: 'electrician', description: 'Complete electrical solutions', minPrice: 199, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1621905252507-b354bcadc030?auto=format&fit=crop&w=500&q=80' },
+    { _id: '10', name: 'Washing Machine Repair', slug: 'washing-machine', description: 'Professional washing machine service', minPrice: 249, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1626806819282-2c1dc61a0e05?auto=format&fit=crop&w=500&q=80' },
+    { _id: '11', name: 'Refrigerator Service', slug: 'refrigerator', description: 'Expert refrigerator repair', minPrice: 299, estimatedDuration: 120, image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=500&q=80' },
+    { _id: '12', name: 'Plumbing Service', slug: 'plumbing', description: 'Expert plumbing solutions', minPrice: 199, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1585704032915-c3400ca1f963?auto=format&fit=crop&w=500&q=80' },
+    { _id: '13', name: 'Water Purifier Service', slug: 'water-purifier', description: 'RO & water purifier maintenance', minPrice: 199, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1584483766114-2feefdb80f2d?auto=format&fit=crop&w=500&q=80' },
+    { _id: '14', name: 'Geyser Service & Repair', slug: 'geyser', description: 'Water heater repair services', minPrice: 249, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1585144860106-998ca0f2920a?auto=format&fit=crop&w=500&q=80' },
+    { _id: '15', name: 'Sofa Cleaning', slug: 'sofa-cleaning', description: 'Professional sofa deep cleaning', minPrice: 499, estimatedDuration: 180, image: 'https://images.unsplash.com/photo-1556911223-e47fe280f983?auto=format&fit=crop&w=500&q=80' },
+    { _id: '16', name: 'Bathroom Cleaning', slug: 'bathroom-cleaning', description: 'Deep bathroom sanitization', minPrice: 299, estimatedDuration: 120, image: 'https://images.unsplash.com/photo-1584622781564-1d987f7333c1?auto=format&fit=crop&w=500&q=80' },
+    { _id: '17', name: 'Kitchen Deep Cleaning', slug: 'kitchen-cleaning', description: 'Intensive kitchen degreasing', minPrice: 399, estimatedDuration: 150, image: 'https://images.unsplash.com/photo-1556912173-3bb406ef7e77?auto=format&fit=crop&w=500&q=80' },
+    { _id: '18', name: 'Full Home Cleaning', slug: 'home-cleaning', description: 'Complete house deep cleaning', minPrice: 999, estimatedDuration: 360, image: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=500&q=80' },
+    { _id: '19', name: 'Cockroach Control', slug: 'cockroach-control', description: 'Herbal pest management', minPrice: 499, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=500&q=80' },
+    { _id: '20', name: 'Termite Control', slug: 'termite-control', description: 'Anti-termite wood protection', minPrice: 999, estimatedDuration: 180, image: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?auto=format&fit=crop&w=500&q=80' },
+    { _id: '21', name: 'Men\'s Salon & Massage', slug: 'salon-for-men', description: 'Grooming & relaxation', minPrice: 249, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=500&q=80' },
+    { _id: '22', name: 'Women\'s Salon & Spa', slug: 'salon-for-women', description: 'Beauty & wellness services', minPrice: 599, estimatedDuration: 120, image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=500&q=80' },
+    { _id: '23', name: 'Massage for Men', slug: 'massage-men', description: 'Deep tissue therapy', minPrice: 799, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=500&q=80' },
+    { _id: '24', name: 'Massage for Women', slug: 'massage-women', description: 'Relaxing spa at home', minPrice: 899, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=500&q=80' },
+    { _id: '25', name: 'Wall Painting', slug: 'painting', description: 'Fresh coat for your walls', minPrice: 1999, estimatedDuration: 480, image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=500&q=80' },
+    { _id: '26', name: 'Carpenter Services', slug: 'carpenter', description: 'Furniture repair & assembly', minPrice: 249, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=500&q=80' },
+    { _id: '27', name: 'Packers & Movers', slug: 'packers-movers', description: 'Stress-free shifting service', minPrice: 2999, estimatedDuration: 360, image: 'https://images.unsplash.com/photo-1520038410233-7141be7e6f97?auto=format&fit=crop&w=500&q=80' },
+    { _id: '28', name: 'TV Service & Installation', slug: 'tv-service', description: 'LED/LCD TV maintenance', minPrice: 299, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=500&q=80' },
+    { _id: '29', name: 'Microwave & Oven Repair', slug: 'microwave-repair', description: 'Kitchen appliance repair', minPrice: 249, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1584281722572-9133600570d1?auto=format&fit=crop&w=500&q=80' },
+    { _id: '30', name: 'Chimney Cleaning', slug: 'chimney-cleaning', description: 'Kitchen chimney service', minPrice: 399, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=500&q=80' },
+    { _id: '31', name: 'Water Leakage Repair', slug: 'water-leakage', description: 'Seepage & leakage solutions', minPrice: 499, estimatedDuration: 120, image: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=500&q=80' },
+    { _id: '32', name: 'Garden Maintenance', slug: 'gardening', description: 'Lawn care & plant service', minPrice: 299, estimatedDuration: 120, image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=500&q=80' },
+    { _id: '33', name: 'Pest Control (Termites)', slug: 'pest-termite', description: 'Long-term termite protection', minPrice: 1499, estimatedDuration: 180, image: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?auto=format&fit=crop&w=500&q=80' },
+    { _id: '34', name: 'Full House Sanitization', slug: 'sanitization', description: 'Germ & virus protection', minPrice: 499, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1584622781564-1d987f7333c1?auto=format&fit=crop&w=500&q=80' },
+    { _id: '35', name: 'Face Care at Home', slug: 'facial', description: 'Facials & clean-ups', minPrice: 499, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc2069?auto=format&fit=crop&w=500&q=80' },
+    { _id: '36', name: 'Hair Cut for Men', slug: 'haircut-men', description: 'Professional home haircut', minPrice: 199, estimatedDuration: 45, image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=500&q=80' },
+    { _id: '37', name: 'Physiotherapy at Home', slug: 'physiotherapy', description: 'Expert physical therapy', minPrice: 499, estimatedDuration: 60, image: 'https://images.unsplash.com/photo-1576091160550-217359f4b14c?auto=format&fit=crop&w=500&q=80' },
+    { _id: '38', name: 'Bed Bug Control', slug: 'bed-bug', description: 'Eliminate bed bugs for good', minPrice: 699, estimatedDuration: 90, image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=500&q=80' },
+    { _id: '39', name: 'Switch & Socket Repair', slug: 'switch-socket', description: 'Minor electrical repairs', minPrice: 99, estimatedDuration: 30, image: 'https://images.unsplash.com/photo-1621905252507-b354bcadc030?auto=format&fit=crop&w=500&q=80' }
+  ];
+
   const fetchCategories = async () => {
     try {
       console.log('Fetching categories from: /api/urban-services/categories?active=true');
       const response = await axios.get('/api/urban-services/categories?active=true');
       console.log('Categories API response:', response);
       if (response.data && response.data.data) {
-        setCategories(response.data.data);
+        // Merge API data with 39 hardcoded categories
+        const apiCategories = response.data.data;
+        const merged = all39Categories.map(cat => {
+          const apiMatch = apiCategories.find(a => a.slug === cat.slug);
+          return apiMatch ? { ...cat, ...apiMatch } : cat;
+        });
+        setCategories(merged);
       } else {
-        console.warn('Categories data is missing in response');
-        setCategories([]);
+        console.warn('Categories data is missing in response, using defaults');
+        setCategories(all39Categories);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setCategories([]); // Fallback to empty array on error
+      setCategories(all39Categories); // Fallback to our 39 categories on error
     } finally {
       setLoading(false);
     }
@@ -316,7 +367,7 @@ const UrbanServicesHome = () => {
                 label: 'BEST OFFER',
                 title: 'Deep Cleaning',
                 desc: 'Professional equipment & chemicals',
-                img: 'https://images.unsplash.com/photo-1581578731548-c64695ce6958?auto=format&fit=crop&w=800&q=80',
+                img: DeepCleaningBanner,
                 price: '₹419',
                 slug: 'cleaning'
               },
@@ -542,90 +593,7 @@ const UrbanServicesHome = () => {
         </section>
       </main>
 
-      {/* Premium Footer */}
-      <footer className="bg-[#0A0A0A] text-white pt-20 md:pt-32 pb-12 overflow-hidden relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-20 mb-20 md:mb-32">
-            <div className="lg:col-span-5">
-              <div className="mb-8 md:mb-10 text-center lg:text-left">
-                <img src={CityBellLogo} alt="City Bell" className="h-10 md:h-12 object-contain brightness-0 invert mx-auto lg:mx-0" />
-              </div>
-              <p className="text-gray-400 text-base md:text-lg font-medium max-w-md mb-8 md:mb-12 leading-relaxed text-center lg:text-left mx-auto lg:mx-0">
-                Empowering independent professionals to provide doorstep services like never before. Trusted by millions worldwide.
-              </p>
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-                <button className="h-12 md:h-14 px-6 md:px-8 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl md:rounded-2xl transition-all flex items-center gap-3 active:scale-95 group">
-                  <div className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center invert opacity-80 group-hover:opacity-100">
-                    <svg viewBox="0 0 384 512" width="18" height="18" className="md:w-[20px] md:h-[20px]"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41-84.5-43.2-35.3-2.4-70.5 21.3-84.4 21.3-14.7 0-45.3-20.8-77.4-20.2-42.6.6-81.8 24.8-103.8 63.3-44.6 77.3-11.4 191.8 31.3 253.5 21 30.1 46.1 63.8 78.4 62.6 31.1-1.2 42.7-20.1 80.3-20.1 37.5 0 48.3 20.1 81 19.5 33.3-.6 54.8-30.5 75.2-60.2 23.5-34.4 33.2-67.6 33.6-69.2-1-0.2-65.7-25.2-66.3-102.5zM290.3 69.6c15.6-18.9 26.1-45.2 23.2-71.4-22.6 0.9-49.9 15.1-66.1 34-14.5 16.8-27.1 43.8-23.7 69.1 25.1 2 51.1-12.8 66.6-31.7z" /></svg>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[8px] md:text-[10px] uppercase tracking-widest font-black text-gray-500 leading-none mb-1">Download on</p>
-                    <p className="text-xs md:text-sm font-black">App Store</p>
-                  </div>
-                </button>
-                <button className="h-12 md:h-14 px-6 md:px-8 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl md:rounded-2xl transition-all flex items-center gap-3 active:scale-95 group">
-                  <div className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center opacity-80 group-hover:opacity-100">
-                    <svg viewBox="0 0 512 512" width="18" height="18" className="md:w-[20px] md:h-[20px]"><path fill="#fff" d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l220.7-127.3-60.1-60.1L104.6 499z" /></svg>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[8px] md:text-[10px] uppercase tracking-widest font-black text-gray-500 leading-none mb-1">Get it on</p>
-                    <p className="text-xs md:text-sm font-black">Google Play</p>
-                  </div>
-                </button>
-              </div>
-            </div>
-            <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 text-center md:text-left">
-              <div>
-                <h5 className="font-black mb-6 md:mb-8 text-[10px] md:text-xs uppercase tracking-[0.3em] text-blue-500">Company</h5>
-                <ul className="space-y-4 md:space-y-6 text-gray-400 text-sm md:text-base font-medium">
-                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Foundation</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                </ul>
-              </div>
-              <div>
-                <h5 className="font-black mb-6 md:mb-8 text-[10px] md:text-xs uppercase tracking-[0.3em] text-blue-500">Customers</h5>
-                <ul className="space-y-4 md:space-y-6 text-gray-400 text-sm md:text-base font-medium">
-                  <li><a href="#" className="hover:text-white transition-colors">Reviews</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Categories</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Gift Cards</a></li>
-                </ul>
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <h5 className="font-black mb-6 md:mb-8 text-[10px] md:text-xs uppercase tracking-[0.3em] text-blue-500">Partners</h5>
-                <ul className="space-y-4 md:space-y-6 text-gray-400 text-sm md:text-base font-medium flex flex-row flex-wrap justify-center md:flex-col md:justify-start gap-x-8 gap-y-4">
-                  <li><a href="#" className="hover:text-white transition-colors">Register as Partner</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Service Quality</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Safety Standard</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-12 border-t border-white/5 flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="text-[11px] md:text-sm font-bold text-gray-600 order-3 md:order-1 text-center">
-              © 2024 City Bell Services Private Limited.
-            </div>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-10 order-2 md:order-2">
-              {['Privacy', 'Terms', 'Cookies'].map(link => (
-                <a key={link} href="#" className="text-[11px] md:text-sm font-bold text-gray-600 hover:text-white transition-colors">{link}</a>
-              ))}
-            </div>
-            <div className="flex gap-4 md:gap-6 order-1 md:order-3">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 transition-all cursor-pointer group">
-                  <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-500 group-hover:bg-white transition-colors" style={{ mask: `url(https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg) no-repeat center`, WebkitMask: `url(https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/${['facebook', 'twitter', 'instagram', 'linkedin'][i - 1]}.svg) no-repeat center` }}></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
 
       <style dangerouslySetInnerHTML={{
         __html: `
