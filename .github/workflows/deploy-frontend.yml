@@ -1,53 +1,38 @@
-name: Deploy SuperApp Frontend
+name: Deploy Superapp Backend
 
 on:
   push:
     branches:
-      - main
+      - main   # deploy only on main branch
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repo
+      # 1️⃣ Checkout code
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      # 2. Debug repo structure (optional, for troubleshooting)
-      - name: List repo files
-        run: ls -R
-
-      # 3. Setup Node.js
+      # 2️⃣ Install Node (for npm)
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'  # match your server Node.js version
 
-      # 4. Install dependencies
-      - name: Install dependencies
-        working-directory: superapp-master
-        run: npm install
-
-      # 5. Build frontend
-      - name: Build frontend
-        working-directory: superapp-master
-        run: npm run build
-
-      # 6. Deploy to EC2
+      # 3️⃣ Deploy to EC2 via SSH
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}        # EC2 public IP
+          username: ec2-user                     # default for Amazon Linux
+          key: ${{ secrets.EC2_SSH_KEY }}       # GitHub Secret containing PEM
+          port: 22
           script: |
-            # Clean old build
-            sudo rm -rf /var/www/superapp-master/*
-            # Copy new build
-            sudo cp -r /home/ec2-user/super-app_master/superapp-master/build/* /var/www/superapp-master/
-            # Set permissions
-            sudo chown -R nginx:nginx /var/www/superapp-master
-            sudo chmod -R 755 /var/www/superapp-master
-            # Reload nginx
-            sudo systemctl reload nginx
+            echo "✅ Connected to EC2"
+            cd /home/ec2-user/superapp_backend   # path on your EC2
+            git reset --hard
+            git pull origin main
+            npm install
+            pm2 restart superapp-backend --update-env
+            pm2 status
