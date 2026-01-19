@@ -19,15 +19,15 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        working-directory: ./superappmaster
+        working-directory: superappmaster
         run: npm install
 
       - name: Build frontend
-        working-directory: ./superappmaster
+        working-directory: superappmaster
         run: npm run build
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
