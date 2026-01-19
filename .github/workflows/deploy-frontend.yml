@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -19,9 +19,11 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
+        working-directory: ./superappmaster
         run: npm install
 
       - name: Build frontend
+        working-directory: ./superappmaster
         run: npm run build
 
       - name: Deploy to EC2
@@ -32,7 +34,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo rm -rf /var/www/superappmaster/*
-            sudo cp -r dist/* /var/www/superappmaster/
+            sudo cp -r /home/ec2-user/superappmaster/dist/* /var/www/superappmaster/ || exit 1
             sudo chown -R nginx:nginx /var/www/superappmaster
             sudo chmod -R 755 /var/www/superappmaster
             sudo systemctl reload nginx
