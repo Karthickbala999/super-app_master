@@ -1,8 +1,9 @@
-name: Deploy SuperApp to EC2
+name: Deploy SuperApp Frontend to EC2
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -10,48 +11,32 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Deploy Backend to EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: 3.224.95.117
           username: ec2-user
-          key: ${{ secrets.SUPERAPP_MASTER_PEM }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            # Navigate to backend
-            cd /home/ec2-user/superapp-backend
+            echo "✅ Connected to EC2"
 
-            # Ensure git repo is correct
-            git reset --hard
-            git pull origin main
-
-            # Install dependencies
-            npm install
-
-            # Restart backend with PM2
-            pm2 restart superapp-backend --update-env || pm2 start server.js --name superapp-backend --update-env
-
-      - name: Deploy Frontend to EC2
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.SUPERAPP_MASTER_PEM }}
-          port: 22
-          script: |
-            # Navigate to frontend
             cd /home/ec2-user/super-app_master/superapp-master
 
-            # Ensure git repo is correct
-            git reset --hard
+            echo "📥 Pulling latest code"
             git pull origin main
 
-            # Install dependencies and build
+            echo "📦 Installing dependencies"
             npm install
+
+            echo "🏗️ Building frontend"
             npm run build
 
-            # Copy build to web root
-            sudo rm -rf /var/www/html/*
-            sudo cp -r build/* /var/www/html/
+            echo "♻️ Restarting PM2"
+            pm2 restart superapp-frontend || pm2 start build.js --name superapp-frontend
+
+            pm2 save
+
+            echo "🚀 Deployment successful"
