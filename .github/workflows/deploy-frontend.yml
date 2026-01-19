@@ -1,38 +1,57 @@
-name: Deploy Superapp Backend
+name: Deploy SuperApp to EC2
 
 on:
   push:
-    branches:
-      - main   # deploy only on main branch
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Install Node (for npm)
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'  # match your server Node.js version
-
-      # 3️⃣ Deploy to EC2 via SSH
-      - name: Deploy to EC2
+      - name: Deploy Backend to EC2
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.EC2_HOST }}        # EC2 public IP
-          username: ec2-user                     # default for Amazon Linux
-          key: ${{ secrets.EC2_SSH_KEY }}       # GitHub Secret containing PEM
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.SUPERAPP_MASTER_PEM }}
           port: 22
           script: |
-            echo "✅ Connected to EC2"
-            cd /home/ec2-user/superapp_backend   # path on your EC2
+            # Navigate to backend
+            cd /home/ec2-user/superapp-backend
+
+            # Ensure git repo is correct
             git reset --hard
             git pull origin main
+
+            # Install dependencies
             npm install
-            pm2 restart superapp-backend --update-env
-            pm2 status
+
+            # Restart backend with PM2
+            pm2 restart superapp-backend --update-env || pm2 start server.js --name superapp-backend --update-env
+
+      - name: Deploy Frontend to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.SUPERAPP_MASTER_PEM }}
+          port: 22
+          script: |
+            # Navigate to frontend
+            cd /home/ec2-user/super-app_master/superapp-master
+
+            # Ensure git repo is correct
+            git reset --hard
+            git pull origin main
+
+            # Install dependencies and build
+            npm install
+            npm run build
+
+            # Copy build to web root
+            sudo rm -rf /var/www/html/*
+            sudo cp -r build/* /var/www/html/
