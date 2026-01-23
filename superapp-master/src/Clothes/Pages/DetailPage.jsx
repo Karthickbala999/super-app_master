@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import ClothesHeader from "../Header/ClothesHeader";
-import search from "../../Icons/search.svg";
-import cross from "../../Icons/close-circle.svg";
-import mic from "../../Icons/Mic.svg";
+import MyntraClothesHeader from "../Header/MyntraClothesHeader";
+import { Search, SlidersHorizontal, Mic, X, ChevronLeft, ChevronDown, ChevronUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { FaFilter } from 'react-icons/fa';
 import Product from '../SubPages/AllProducts/Product';
 import shirt from "../Images/shirt.svg";
@@ -70,6 +69,7 @@ const filters = {
 };
 
 function DetailPage() {
+  const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([]);
 
@@ -86,133 +86,197 @@ function DetailPage() {
 
   return (
     <div className='min-h-screen'>
-      <ClothesHeader />
+      <MyntraClothesHeader
+        showBackButton={true}
+        searchQuery={""}
+        setSearchQuery={() => { }}
+        toggleFilter={() => setShowFilters(true)}
+      />
 
-      <div className='pt-24 pb-28 px-4 bg-white'>
+      <main className='pt-28 pb-20 px-4 bg-white'>
+        <div className="max-w-[1248px] mx-auto text-left">
 
-      <div className="flex justify-center mt-2 items-center bg-white">
-        <div className="relative w-full max-w-md">
-          <img
-            src={search}
-            alt="search"
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-7 h-7"
-          />
-          <input
-            type="text"
-            placeholder="What do you want.."
-            className="w-full pl-10 pr-24 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF]"
-          />
-          <img
-            src={mic}
-            alt="mic"
-            className="absolute right-14 top-1/2 transform -translate-y-1/2 w-7 h-7 cursor-pointer"
-          />
-          <button 
-            onClick={toggleFilters} 
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full hover:bg-gray-100 transition-colors relative"
-            title="Filters"
-          >
-            <FaFilter className="w-5 h-5 text-[#5C3FFF]" />
-            {selectedFilters.length > 0 && (
-              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 bg-red-500 text-white rounded-full text-xs font-bold">
-                {selectedFilters.length}
+          {/* Breadcrumbs */}
+          <div className="text-[10px] sm:text-xs text-gray-500 mb-6 flex items-center gap-2 uppercase tracking-widest font-black">
+            <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => navigate('/home-clothes')}>Home</span>
+            <span className="text-gray-300">/</span>
+            <span className="text-gray-900 tracking-tighter">Product List</span>
+          </div>
+
+          <div className="flex justify-between items-baseline mb-8">
+            <h1 className="text-xl sm:text-2xl font-black text-gray-900 uppercase tracking-tighter">
+              Featured Products
+              <span className="ml-3 text-xs sm:text-sm font-bold text-gray-400 capitalize normal-case tracking-normal font-sans">
+                - {products.length} items
               </span>
-            )}
-          </button>
-        </div>
-      </div>
+            </h1>
 
-      {/* Selected Filters Display */}
-      <div className="overflow-x-auto whitespace-nowrap mt-2 mb-3">
-        <div className="flex gap-2">
-          {selectedFilters.map((filter, index) => (
-            <span
-              key={index}
-              className="text-[#484848] text-xs px-3 py-2 bg-[#F7F5FF] border border-[#5C3FFF] rounded-full cursor-pointer inline-block"
-              onClick={() => removeFilter(filter)}
+            <button
+              onClick={() => setShowFilters(true)}
+              className="flex items-center gap-2 px-6 py-2 border-2 border-gray-100 rounded-sm hover:border-pink-500 hover:text-pink-500 transition-all text-[10px] font-black uppercase tracking-widest bg-white"
             >
-              {filter} ✕
-            </span>
-          ))}
+              <SlidersHorizontal size={14} />
+              Filters
+            </button>
+          </div>
+
+          {/* Active Filters Display */}
+          {selectedFilters.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-8">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Applied:</span>
+              {selectedFilters.map((filter, index) => (
+                <button
+                  key={index}
+                  onClick={() => removeFilter(filter)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-full text-[10px] font-black text-gray-600 hover:bg-white hover:border-pink-500 group transition-all"
+                >
+                  {filter} <X size={12} className="text-gray-300 group-hover:text-pink-500" />
+                </button>
+              ))}
+              <button
+                onClick={() => setSelectedFilters([])}
+                className="text-[10px] font-black text-pink-500 px-4 py-1.5 hover:underline uppercase tracking-widest"
+              >
+                Clear All
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-y-10 gap-x-4 sm:gap-x-8">
+            {products.map((product) => (
+              <Product key={product.id} product={product} />
+            ))}
+          </div>
         </div>
-      </div>
-    
-        <div className="grid grid-cols-2 gap-4 w-full mt-2">
-          {products.map((product) => (
-            <Product key={product.id} product={product} />
-          ))}
-        </div>
-      </div>
+      </main>
+
       <Footer />
+
       {/* Filter Modal */}
-      {showFilters && <FilterModal onClose={toggleFilters} onApply={applyFilters} />}
+      {showFilters && (
+        <FilterModal
+          onClose={() => setShowFilters(false)}
+          onApply={applyFilters}
+          selectedFilters={selectedFilters}
+        />
+      )}
     </div>
   );
 }
 
-// filters
-function FilterModal({ onClose, onApply }) {
-  const [selectedFilters, setSelectedFilters] = useState([]);
+// Filter Modal Component - Collapsible (Accordion) Style for Mobile
+function FilterModal({ onClose, onApply, selectedFilters: initialFilters }) {
+  const [selectedSubFilters, setSelectedSubFilters] = useState(initialFilters || []);
+  const [expandedCategories, setExpandedCategories] = useState(['price', 'discount']); // Default expanded
+
+  const categories = Object.keys(filters).filter(cat =>
+    ['price', 'discount', 'rating', 'colors', 'offers'].includes(cat.toLowerCase())
+  );
+
+  const toggleCategory = (cat) => {
+    setExpandedCategories(prev =>
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    );
+  };
 
   const toggleFilter = (filter) => {
-    setSelectedFilters((prev) =>
+    setSelectedSubFilters((prev) =>
       prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
     );
   };
 
-  return (
-    <div className="z-50 fixed inset-0 bg-black bg-opacity-50 flex justify-center items-end">
-      <div className="bg-[#F8F8F8] w-full p-6 rounded-t-[30px] max-h-[75vh] flex flex-col relative">
+  const handleApply = () => {
+    onApply(selectedSubFilters);
+  };
 
-        {/* 🔹 Fixed Header */}
-        <div className="sticky top-0 left-0 right-0 bg-[#F8F8F8] z-10 flex justify-between items-center">
-          <h2 className="text-sm py-3 font-medium bg-[#5C3FFF] rounded-[60px] px-8 text-white">
-            Filters
-          </h2>
-          <img onClick={onClose} src={cross} alt="Close" className="cursor-pointer w-5 h-5" />
+  const handleClear = () => {
+    setSelectedSubFilters([]);
+  };
+
+  return (
+    <div className="z-[300] fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center sm:items-center">
+      <div className="bg-white w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] max-h-[90vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-4">
+            <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+              <X size={24} className="text-gray-900" />
+            </button>
+            <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter">Filters</h2>
+          </div>
+          <button
+            onClick={handleClear}
+            className="text-pink-600 text-sm font-black uppercase tracking-widest hover:bg-pink-50 px-3 py-1 rounded"
+          >
+            Clear All
+          </button>
         </div>
 
-        {/* 🔹 Scrollable Filter Options */}
-        <div className="flex-1 overflow-auto mt-4 mb-12">
-          {Object.entries(filters).map(([category, options]) => (
-            <div key={category} className="mb-4">
-              <h3 className="font-medium text-lg mt-4 text-[#242424]">{category.charAt(0).toUpperCase() + category.slice(1)}</h3>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {options.map((option) => (
-                  <button
-                    key={option}
-                    className={`text-xs px-3 py-1 rounded-full border ${selectedFilters.includes(option) ? 'bg-[#5C3FFF] text-white' : 'bg-[#F8F8F8] border-[#CCCCCC] text-[#484848]'
-                      }`}
-                    onClick={() => toggleFilter(option)}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
+        {/* Collapsible Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {categories.map((cat) => (
+            <div key={cat} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+              <button
+                onClick={() => toggleCategory(cat)}
+                className={`w-full flex items-center justify-between p-4 text-left transition-colors ${expandedCategories.includes(cat) ? 'bg-pink-50/50' : 'bg-white'
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`text-xs font-black uppercase tracking-widest ${expandedCategories.includes(cat) ? 'text-pink-600' : 'text-gray-800'
+                    }`}>
+                    {cat}
+                  </span>
+                  {selectedSubFilters.some(f => filters[cat]?.includes(f)) && (
+                    <span className="bg-pink-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                      {selectedSubFilters.filter(f => filters[cat]?.includes(f)).length}
+                    </span>
+                  )}
+                </div>
+                {expandedCategories.includes(cat) ? (
+                  <ChevronUp size={20} className="text-pink-600" />
+                ) : (
+                  <ChevronDown size={20} className="text-gray-400" />
+                )}
+              </button>
+
+              {expandedCategories.includes(cat) && (
+                <div className="p-4 bg-white grid grid-cols-2 gap-3 animate-in fade-in zoom-in-95 duration-200">
+                  {filters[cat]?.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => toggleFilter(option)}
+                      className={`text-[10px] font-bold py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center text-center leading-tight uppercase tracking-tight ${selectedSubFilters.includes(option)
+                        ? 'bg-pink-600 border-pink-600 text-white shadow-lg shadow-pink-100'
+                        : 'bg-white border-gray-100 text-gray-600 hover:border-pink-200'
+                        }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
 
-        {/* 🔹 Fixed Bottom Buttons */}
-        <div className="sticky bottom-16 left-0 right-0 bg-white flex flex-col gap-2 mt-6">
+        {/* Footer */}
+        <div className="p-6 border-t bg-gray-50/30 grid grid-cols-2 gap-4">
           <button
-            onClick={() => onApply(selectedFilters)}
-            className="w-full px-4 py-2 bg-[#5C3FFF] text-white rounded-[50px]"
+            onClick={onClose}
+            className="w-full py-4 px-6 border-2 border-gray-200 rounded-2xl text-gray-700 font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all bg-white"
+          >
+            Discard
+          </button>
+          <button
+            onClick={handleApply}
+            className="w-full py-4 px-6 bg-pink-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-pink-100"
           >
             Apply
           </button>
-          <button
-            onClick={() => setSelectedFilters([])}
-            className="text-[#242424] w-full px-4 py-2 border rounded-[50px] bg-[#EEEAFF]"
-          >
-            Clear
-          </button>
         </div>
-
       </div>
-
     </div>
-
   );
 }
 

@@ -198,7 +198,7 @@ function Payment() {
     if (cartItems.length === 0) {
         return (
             <div className="bg-white min-h-screen">
-                <MyntraClothesHeader />
+                <MyntraClothesHeader showBackButton={true} />
                 <div className="pt-24 px-4 text-center">
                     <p>Your cart is empty. Redirecting...</p>
                 </div>
@@ -209,7 +209,7 @@ function Payment() {
 
     return (
         <div className="bg-white min-h-screen">
-            <MyntraClothesHeader />
+            <MyntraClothesHeader showBackButton={true} />
             <div className="pt-24 px-4 pb-20 max-w-[1248px] mx-auto">
                 {/* Header */}
                 <div className="mb-6">

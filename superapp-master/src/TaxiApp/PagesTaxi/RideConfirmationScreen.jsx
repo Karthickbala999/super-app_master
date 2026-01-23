@@ -36,7 +36,7 @@ function RideConfirmationScreen() {
     // Debounce utility
     function debounce(func, wait) {
         let timeout;
-        return function(...args) {
+        return function (...args) {
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
@@ -226,24 +226,33 @@ function RideConfirmationScreen() {
 
     // Vehicle types and icons
     const vehicleTypes = [
-        { type: "Bike", icon: "https://img.icons8.com/color/48/motorcycle.png", description: "Quick Bike rides", pax: 1 },
-        { type: "Auto", icon: "https://img.icons8.com/color/48/auto-rickshaw.png", description: "", pax: 1 },
-        { type: "Cab Economy", icon: "https://img.icons8.com/color/48/car.png", description: "", pax: 4 },
-        { type: "Cab Premium", icon: "https://img.icons8.com/color/48/suv.png", description: "", pax: 4 },
-        { type: "Sedan", icon: "https://img.icons8.com/color/48/sedan.png", description: "Comfortable and spacious", pax: 4 },
-        { type: "SUV", icon: "https://img.icons8.com/color/48/suv--v1.png", description: "Premium, large vehicle", pax: 6 }
+        { type: "Bike", icon: "https://img.icons8.com/color/48/motorcycle.png", description: "Quick Bike rides", pax: 1, speedFactor: 0.9 },
+        { type: "Auto", icon: "https://img.icons8.com/color/48/auto-rickshaw.png", description: "", pax: 1, speedFactor: 1.15 },
+        { type: "Cab Economy", icon: "https://img.icons8.com/color/48/car.png", description: "", pax: 4, speedFactor: 1 },
+        { type: "Cab Premium", icon: "https://img.icons8.com/color/48/suv.png", description: "", pax: 4, speedFactor: 1 },
+        { type: "Sedan", icon: "https://img.icons8.com/color/48/sedan.png", description: "Comfortable and spacious", pax: 4, speedFactor: 1 },
+        { type: "SUV", icon: "https://img.icons8.com/color/48/suv--v1.png", description: "Premium, large vehicle", pax: 6, speedFactor: 1 }
     ];
 
     // Dynamically generate vehicle options with fare
     const vehicleOptions = vehicleTypes.map(v => {
         let price = "-";
+        let dropTime = "-";
+
         if (distance && duration) {
-            price = `₹${calculateFare(distance, duration, v.type)}`;
+            const adjustedDuration = duration * (v.speedFactor || 1);
+            price = `₹${calculateFare(distance, adjustedDuration, v.type)}`;
+
+            // Calculate drop time
+            const now = new Date();
+            const arrivalTime = new Date(now.getTime() + adjustedDuration * 60000); // duration is in minutes
+            dropTime = arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
+
         return {
             ...v,
-            timeAway: "2 mins away", // You can make this dynamic if you want
-            dropTime: "-", // You can make this dynamic if you want
+            timeAway: "2 mins away",
+            dropTime,
             price,
             fareDetails: {
                 totalEstimated: price,
@@ -297,11 +306,11 @@ function RideConfirmationScreen() {
     };
 
     // Decide map center based on geocoded coordinates, fallback to default
-    const mapCenter = (pickupCoords && destinationCoords) ? 
+    const mapCenter = (pickupCoords && destinationCoords) ?
         {
             lat: (pickupCoords.lat + destinationCoords.lat) / 2,
             lng: (pickupCoords.lng + destinationCoords.lng) / 2
-        } : 
+        } :
         pickupCoords || destinationCoords || defaultCenter;
 
     // Debug output for coordinates and polyline
@@ -312,112 +321,129 @@ function RideConfirmationScreen() {
     ] : []);
 
     return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200">
-        {/* Custom Toast Notification */}
-        {toast.show && (
-            <div className={`fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
-                toast.type === 'success' 
-                    ? 'bg-green-500 text-white' 
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200">
+            {/* Custom Toast Notification */}
+            {toast.show && (
+                <div className={`fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${toast.type === 'success'
+                    ? 'bg-green-500 text-white'
                     : 'bg-red-500 text-white'
-            }`}>
-                <div className="flex items-center space-x-2">
-                    <span className="font-medium">{toast.message}</span>
-                    <button 
-                        onClick={() => setToast({ show: false, message: '', type: 'success' })}
-                        className="ml-2 text-white hover:text-gray-200"
+                    }`}>
+                    <div className="flex items-center space-x-2">
+                        <span className="font-medium">{toast.message}</span>
+                        <button
+                            onClick={() => setToast({ show: false, message: '', type: 'success' })}
+                            className="ml-2 text-white hover:text-gray-200"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <div className="relative min-h-screen bg-white bg-opacity-80 rounded-3xl shadow-sm border border-blue-100 p-2 md:p-6">
+                <HeaderInsideTaxi />
+                {/* Map absolutely at the top, 50vh, rounded bottom corners */}
+                <div className="absolute top-0 left-0 w-full" style={{ height: '48vh', zIndex: 10, padding: 0, margin: 0 }}>
+                    <div className="w-full h-full" style={{ padding: 0, margin: 0 }}>
+
+                        <Map
+                            center={pickupCoords && isFinite(pickupCoords.lat) && isFinite(pickupCoords.lng) ? pickupCoords : defaultCenter}
+                            markers={[
+                                (pickupCoords && isFinite(pickupCoords.lat) && isFinite(pickupCoords.lng)) ? { position: pickupCoords, title: 'Pickup' } : null,
+                                (destinationCoords && isFinite(destinationCoords.lat) && isFinite(destinationCoords.lng)) ? { position: destinationCoords, title: 'Destination' } : null
+                            ].filter(Boolean)}
+                            polyline={Array.isArray(routePolyline) && routePolyline.every(p => Array.isArray(p) && p.length === 2 && isFinite(p[0]) && isFinite(p[1])) ? routePolyline : []}
+                            onMapClick={() => { }}
+                            forceLocationIcon={true}
+                        />
+                    </div>
+                    {/* Floating Back Button */}
+                    <button
+                        onClick={handleBack}
+                        className="absolute left-4 top-4 bg-white p-2 rounded-full shadow-md flex items-center justify-center z-20"
                     >
-                        ×
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-arrow-left'%3E%3Cpath d='m12 19-7-7 7-7'/%3E%3Cpath d='M19 12H5'/%3E%3C/svg%3E" alt="back" className="w-6 h-6 text-gray-800" />
+                    </button>
+                    {/* Floating Current Location Button */}
+                    <button
+                        className="absolute right-4 top-4 bg-white p-2 rounded-full shadow-md flex items-center justify-center z-20"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-crosshair" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="22" y1="12" x2="18" y2="12" /><line x1="6" y1="12" x2="2" y2="12" /><line x1="12" y1="6" x2="12" y2="2" /><line x1="12" y1="22" x2="12" y2="18" /></svg>
                     </button>
                 </div>
-            </div>
-        )}
-
-        <div className="relative min-h-screen bg-white bg-opacity-80 rounded-3xl shadow-sm border border-blue-100 p-2 md:p-6">
-            <HeaderInsideTaxi />
-            {/* Map absolutely at the top, 50vh, rounded bottom corners */}
-            <div className="absolute top-0 left-0 w-full" style={{ height: '48vh', zIndex: 10, padding: 0, margin: 0 }}>
-                <div className="w-full h-full" style={{ padding: 0, margin: 0 }}>
-                    
-                    <Map
-                        center={pickupCoords && isFinite(pickupCoords.lat) && isFinite(pickupCoords.lng) ? pickupCoords : defaultCenter}
-                        markers={[
-                            (pickupCoords && isFinite(pickupCoords.lat) && isFinite(pickupCoords.lng)) ? { position: pickupCoords, title: 'Pickup' } : null,
-                            (destinationCoords && isFinite(destinationCoords.lat) && isFinite(destinationCoords.lng)) ? { position: destinationCoords, title: 'Destination' } : null
-                        ].filter(Boolean)}
-                        polyline={Array.isArray(routePolyline) && routePolyline.every(p => Array.isArray(p) && p.length === 2 && isFinite(p[0]) && isFinite(p[1])) ? routePolyline : []}
-                        onMapClick={() => {}}
-                        forceLocationIcon={true}
-                    />
+                {/* Add Stop Bar - floating pill above the card */}
+                <div className="absolute left-1/2 -translate-x-1/2 w-[90%] z-30" style={{ top: 'calc(48vh - 48px)' }}>
+                    <div className="flex items-center bg-white rounded-full shadow px-4 py-2 w-full border border-blue-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin mr-2 text-blue-500" viewBox="0 0 24 24"><path d="M12 21c-4.418 0-8-4.03-8-9a8 8 0 0 1 16 0c0 4.97-3.582 9-8 9z" /><circle cx="12" cy="12" r="3" /></svg>
+                        <span className="text-gray-600 text-sm flex-1 truncate">Add stop to drop your friends</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right ml-2 text-gray-400" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+                    </div>
                 </div>
-                {/* Floating Back Button */}
-                <button
-                    onClick={handleBack}
-                    className="absolute left-4 top-4 bg-white p-2 rounded-full shadow-md flex items-center justify-center z-20"
-                >
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-arrow-left'%3E%3Cpath d='m12 19-7-7 7-7'/%3E%3Cpath d='M19 12H5'/%3E%3C/svg%3E" alt="back" className="w-6 h-6 text-gray-800" />
-                </button>
-                {/* Floating Current Location Button */}
-                <button
-                    className="absolute right-4 top-4 bg-white p-2 rounded-full shadow-md flex items-center justify-center z-20"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-crosshair" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
-                </button>
-            </div>
-            {/* Add Stop Bar - floating pill above the card */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-[90%] z-30" style={{ top: 'calc(48vh - 48px)' }}>
-                <div className="flex items-center bg-white rounded-full shadow px-4 py-2 w-full border border-blue-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin mr-2 text-blue-500" viewBox="0 0 24 24"><path d="M12 21c-4.418 0-8-4.03-8-9a8 8 0 0 1 16 0c0 4.97-3.582 9-8 9z"/><circle cx="12" cy="12" r="3"/></svg>
-                    <span className="text-gray-600 text-sm flex-1 truncate">Add stop to drop your friends</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right ml-2 text-gray-400" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-                </div>
-            </div>
-            {/* Floating Card - full width, always reaches footer, no gap */}
-            <div className="absolute left-0 right-0 top-[48vh] bottom-0 z-20 pointer-events-none">
-                <div className="rounded-t-3xl shadow-lg bg-white p-2 pt-2 h-full overflow-y-auto pointer-events-auto w-full flex flex-col pb-[64px]" style={{ marginTop: 0 }}>
-                    {/* Ride Options */}
-                    {vehicleOptions.map((option, index) => (
-                        <div
-                            key={index}
-                            className={`flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0 cursor-pointer rounded-xl transition-all duration-150 ${selectedFareVehicle?.type === option.type 
-    ? 'border-2 border-blue-600 shadow-lg bg-blue-50' 
-    : 'border border-gray-200 bg-white'}`}
-
-                            onClick={() => handleVehicleClick(option)}
-                        >
-                            <div className="flex items-center">
-                                <img src={option.icon} alt={option.type} className="w-8 h-8 mr-3" />
-                                <div>
-                                    <p className="font-semibold text-sm">{option.type}</p>
-                                    <p className="text-xs text-gray-500">{option.timeAway} • Drop {option.dropTime}</p>
+                {/* Floating Card - full width, always reaches footer, no gap */}
+                <div className="absolute left-0 right-0 top-[48vh] bottom-0 z-20 pointer-events-none">
+                    <div className="rounded-t-3xl shadow-lg bg-white p-2 pt-2 h-full overflow-y-auto pointer-events-auto w-full flex flex-col pb-[64px]" style={{ marginTop: 0 }}>
+                        {/* Distance & Time Header */}
+                        {distance && duration && (
+                            <div className="w-full bg-blue-50 p-2.5 rounded-xl mb-2 flex justify-between items-center border border-blue-100 shadow-sm">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Total Distance</span>
+                                    <span className="text-lg font-black text-gray-800">{distance.toFixed(2)} km</span>
+                                </div>
+                                <div className="h-6 w-px bg-blue-200 mx-2"></div>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Est. Time</span>
+                                    <span className="text-base font-bold text-gray-800">{Math.round(duration)} mins</span>
                                 </div>
                             </div>
-                            <div className="text-base font-medium text-black">{option.price}</div>
+                        )}
+
+                        {/* Ride Options */}
+                        {vehicleOptions.map((option, index) => (
+                            <div
+                                key={index}
+                                className={`flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0 cursor-pointer rounded-xl transition-all duration-150 p-2 ${selectedFareVehicle?.type === option.type
+                                    ? 'border-2 border-green-500 shadow-md bg-green-50'
+                                    : 'border border-transparent hover:bg-gray-50'}`}
+                                onClick={() => handleVehicleClick(option)}
+                            >
+                                <div className="flex items-center">
+                                    <img src={option.icon} alt={option.type} className="w-10 h-10 mr-3 object-contain" />
+                                    <div>
+                                        <p className="font-bold text-sm text-gray-900">{option.type}</p>
+                                        <div className="flex items-center text-xs text-gray-500 mt-0.5 space-x-1">
+                                            <span>2 mins away</span>
+                                            <span>•</span>
+                                            <span className="text-gray-900 font-medium">Drop by {option.dropTime}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="text-[15px] font-black text-black">{option.price}</div>
+                            </div>
+                        ))}
+                        {/* Discount Banner */}
+                        <div className="my-1"></div>
+                        {/* Payment/Offers Row */}
+                        <div className="flex items-center justify-between mt-1">
+                            <div className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-wallet mr-1" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h12a2 2 0 0 1 0 4H5a2 2 0 0 0 0 4h12a2 2 0 0 0 2-2v-3" /><path d="M22 7V4a1 1 0 0 0-1-1H3a2 2 0 0 0 0 4h18a2 2 0 0 1 0 4H3a2 2 0 0 0 0 4h18a2 2 0 0 0 2-2v-3" /><path d="M3 11h2v2H3z" /></svg>
+                                <span className="font-semibold text-xs">Cash</span>
+                            </div>
+                            <div className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-tag mr-1" viewBox="0 0 24 24"><path d="M9 19H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5l6-6 6 6v5a2 2 0 0 1-2 2h-5l-6 6Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                <span className="font-semibold text-xs">Offers</span>
+                            </div>
                         </div>
-                    ))}
-                    {/* Discount Banner */}
-                    <div className="my-1"></div>
-                    {/* Payment/Offers Row */}
-                    <div className="flex items-center justify-between mt-1">
-                        <div className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-wallet mr-1" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h12a2 2 0 0 1 0 4H5a2 2 0 0 0 0 4h12a2 2 0 0 0 2-2v-3"/><path d="M22 7V4a1 1 0 0 0-1-1H3a2 2 0 0 0 0 4h18a2 2 0 0 1 0 4H3a2 2 0 0 0 0 4h18a2 2 0 0 0 2-2v-3"/><path d="M3 11h2v2H3z"/></svg>
-                            <span className="font-semibold text-xs">Cash</span>
-                        </div>
-                        <div className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-tag mr-1" viewBox="0 0 24 24"><path d="M9 19H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5l6-6 6 6v5a2 2 0 0 1-2 2h-5l-6 6Z"/><circle cx="12" cy="12" r="3"/></svg>
-                            <span className="font-semibold text-xs">Offers</span>
-                        </div>
+                        {/* Book Bike Button */}
+                        <button
+                            className="w-full bg-gradient-to-r from-blue-500 to-blue-400 text-white py-3 rounded-xl text-base font-semibold shadow-lg mt-2 hover:from-blue-600 hover:to-blue-500 transition-colors duration-200"
+                            onClick={handleBookBike}
+                        >
+                            {selectedFareVehicle ? `Book ${selectedFareVehicle.type}` : 'Book Ride'}
+                        </button>
                     </div>
-                    {/* Book Bike Button */}
-                    <button
-                        className="w-full bg-gradient-to-r from-blue-500 to-blue-400 text-white py-3 rounded-xl text-base font-semibold shadow-lg mt-2 hover:from-blue-600 hover:to-blue-500 transition-colors duration-200"
-                        onClick={handleBookBike}
-                    >
-                        {selectedFareVehicle ? `Book ${selectedFareVehicle.type}` : 'Book Ride'}
-                    </button>
                 </div>
             </div>
-            </div>
-<FooterTaxi />
+            <FooterTaxi />
 
             <FareDetailsModal
                 isOpen={showFareDetails}

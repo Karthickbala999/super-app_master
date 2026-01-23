@@ -11,7 +11,8 @@ const ClothesHeaderComponent = () => {
             <div className="flex items-center gap-3">
                 <button
                     onClick={() => navigate(-1)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="p-2 -ml-2 mr-1 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center outline-none focus:bg-gray-100 touch-manipulation"
+                    aria-label="Go Back"
                 >
                     <ChevronLeft size={24} className="text-gray-900" />
                 </button>

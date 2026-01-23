@@ -191,7 +191,7 @@ function Categories() {
   if (loading) {
     return (
       <div>
-        <FlipkartClothesHeader />
+        <MyntraClothesHeader showBackButton={true} />
         <div className="pt-24 px-4 max-w-[1248px] mx-auto">
           <div className="font-medium text-base">Loading Categories...</div>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mt-4">
@@ -211,8 +211,9 @@ function Categories() {
   return (
     <div>
       <div className="bg-white min-h-screen">
-        <MyntraClothesHeader />
+        <MyntraClothesHeader showBackButton={true} />
         <div className="pt-28 px-4 max-w-[1248px] mx-auto">
+
           {/* Page Header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-800">

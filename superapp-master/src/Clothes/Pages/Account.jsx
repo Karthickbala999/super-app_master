@@ -26,7 +26,7 @@ function Account() {
 
     return (
         <div className='bg-white min-h-screen'>
-            <MyntraClothesHeader />
+            <MyntraClothesHeader showBackButton={true} />
             <div className='pt-24 px-4 max-w-[1248px] mx-auto'>
 
                 <div className="mt-4 bg-white rounded-full p-2 border border-[#E1E1E1] flex items-center gap-3">

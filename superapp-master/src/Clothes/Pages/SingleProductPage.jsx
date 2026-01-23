@@ -1,9 +1,13 @@
 import React from 'react'
 import { useState, useRef } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import ClothesHeader from "../Header/ClothesHeader";
 import { Dialog } from "@headlessui/react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from "swiper/react";
+import { FaShoppingCart } from 'react-icons/fa';
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -74,19 +78,21 @@ const products = [
 ];
 
 function SingleProductPage() {
-    const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+  const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isSizeModalOpen, setIsSizeModalOpen] = useState(false);
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { addToCart } = useCart();
   const { id } = useParams(); // Get product ID from URL params if available
 
   const settings = {
-    dots: true, 
+    dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 2, 
+    slidesToShow: 2,
     slidesToScroll: 1,
     arrows: false,
   };
@@ -123,36 +129,45 @@ function SingleProductPage() {
     }
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
+    if (!id) {
+      toast.error('Product ID not found. Please navigate from a product listing.');
+      return;
+    }
+    setShowConfirmModal(true);
+  };
+
+  const executeAddToCart = async () => {
     try {
-      // Use product ID from URL params
-      if (!id) {
-        alert('Product ID not found. Please navigate from a product listing.');
-        return;
-      }
-      
+      setShowConfirmModal(false);
+      setAdding(true);
       console.log('Adding to cart:', { productId: id, quantity });
       const result = await addToCart(id, quantity);
-      
+
       if (result.success) {
-        alert(`Added ${quantity} item(s) to cart!`);
+        toast.success(`Added ${quantity} item(s) to cart!`);
       } else {
-        alert('Failed to add to cart: ' + (result.message || 'Unknown error'));
+        toast.error('Failed to add to cart: ' + (result.message || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Failed to add to cart. Please try again.');
+      toast.error('Failed to add to cart. Please try again.');
+    } finally {
+      setAdding(false);
     }
   };
 
   return (
     <div className='min-h-screen'>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <ClothesHeader />
-      <div className="mt-20 pb-32">
-        <div className="bg-[#F7F5FF] h-[300px] relative pt-4">
+
+      <div className="mt-24 pb-32 px-4 max-w-[1248px] mx-auto">
+
+        <div className="bg-[#F7F5FF] h-[300px] relative pt-4 rounded-xl overflow-hidden">
           <div className="relative flex justify-end space-x-3 px-4">
             <HeartPage />
-            <div 
+            <div
               onClick={handleShare}
               className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md cursor-pointer"
             >
@@ -219,7 +234,7 @@ function SingleProductPage() {
           {/* Quantity and Cart */}
           <div className="mt-2 flex justify-between items-center px-4">
             <p className='font-medium text-sm text-[#000000]'>Quantity</p>
-            <select 
+            <select
               className=" py-0 rounded-full border border-[#CCCCCC] px-2"
               value={quantity}
               onChange={(e) => setQuantity(parseInt(e.target.value))}
@@ -234,11 +249,20 @@ function SingleProductPage() {
 
           {/* Buttons */}
           <div className="mt-4 space-y-2 px-4">
-            <button 
+            <button
               onClick={handleAddToCart}
-              className="text-[#242424] w-full px-4 py-2 rounded-[50px] bg-[#EEEAFF] border border-[#5C3FFF]"
+              disabled={adding}
+              className={`text-[#242424] w-full px-4 py-2 rounded-[50px] bg-[#EEEAFF] border border-[#5C3FFF] flex items-center justify-center transition-colors ${adding ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#E0DAFF]'
+                }`}
             >
-              Add to Cart
+              {adding ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#5C3FFF] mr-2"></div>
+                  Adding...
+                </>
+              ) : (
+                'Add to Cart'
+              )}
             </button>
             <button
               onClick={() => navigate("/home-clothes/all-addresses")}
@@ -306,6 +330,60 @@ function SingleProductPage() {
         </div>
       </div>
       <Footer />
+
+      {/* Add to Cart Confirmation Modal */}
+      <Dialog open={showConfirmModal} onClose={() => setShowConfirmModal(false)} className="z-[101] fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="p-8 text-center text-left">
+            <div className="w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaShoppingCart size={32} className="text-pink-600" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter mb-2">Confirm Add</h3>
+            <p className="text-gray-500 font-medium mb-6">Do you want to add this product to your cart?</p>
+
+            {/* Quantity Selector in Modal */}
+            <div className="bg-gray-50 rounded-2xl p-4 mb-6">
+              <div className="flex items-center justify-between mb-3 text-sm font-bold text-gray-500 uppercase tracking-widest">
+                <span>Quantity</span>
+                <div className="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-gray-100">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-8 h-8 flex items-center justify-center text-pink-600 hover:bg-pink-50 rounded-lg transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="text-gray-900 w-4 text-center">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                    className="w-8 h-8 flex items-center justify-center text-pink-600 hover:bg-pink-50 rounded-lg transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Total Cost</span>
+                <span className="text-xl font-black text-pink-600 italic">₹{1400 * quantity}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="py-4 px-6 border-2 border-gray-100 rounded-2xl text-gray-400 font-black text-xs uppercase tracking-widest hover:bg-gray-50 transition-all active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeAddToCart}
+                className="py-4 px-6 bg-pink-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-pink-100 active:scale-95 transition-all"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      </Dialog>
     </div>
   )
 }

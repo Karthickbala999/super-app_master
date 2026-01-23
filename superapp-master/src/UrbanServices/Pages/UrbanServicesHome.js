@@ -23,7 +23,8 @@ import {
   Home,
   Hammer,
   Droplets,
-  Zap
+  Zap,
+  ArrowLeft
 } from 'lucide-react';
 import CityBellLogo from '../../Images/Logo/CityBellLogo.png';
 import DeepCleaningBanner from '../../Images/Banners/deep_cleaning.png';
@@ -186,6 +187,13 @@ const UrbanServicesHome = () => {
       <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-100 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 md:gap-8">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 -ml-2 mr-2 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center outline-none focus:bg-gray-100 touch-manipulation"
+              aria-label="Go Back"
+            >
+              <ArrowLeft size={24} className="text-gray-900" />
+            </button>
             <div
               className="cursor-pointer"
               onClick={() => navigate('/urban-services')}

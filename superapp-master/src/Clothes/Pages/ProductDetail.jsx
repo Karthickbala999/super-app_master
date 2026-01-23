@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import MyntraClothesHeader from '../Header/MyntraClothesHeader';
 import Footer from '../../Utility/Footer';
 import API_CONFIG from '../../config/api.config';
 import { useCart } from '../../Utility/CartContext';
 import paymentService from '../../services/paymentService';
+import { Dialog } from '@headlessui/react';
+import { FaShoppingCart } from 'react-icons/fa';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -17,6 +20,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     fetchProductDetails();
@@ -47,7 +51,7 @@ const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!product) return;
 
     // Check if product is in stock
@@ -62,7 +66,12 @@ const ProductDetail = () => {
       return;
     }
 
+    setShowConfirmModal(true);
+  };
+
+  const executeAddToCart = async () => {
     try {
+      setShowConfirmModal(false);
       setAddingToCart(true);
 
       // Use CartContext addToCart function
@@ -164,7 +173,7 @@ const ProductDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <MyntraClothesHeader />
+        <MyntraClothesHeader showBackButton={true} />
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -175,7 +184,7 @@ const ProductDetail = () => {
   if (error || !product) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <MyntraClothesHeader />
+        <MyntraClothesHeader showBackButton={true} />
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
             <p className="text-red-500 mb-4">{error || 'Product not found'}</p>
@@ -196,9 +205,11 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <MyntraClothesHeader />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <MyntraClothesHeader showBackButton={true} />
 
       <div className="pt-24 pb-16 px-4 max-w-[1248px] mx-auto">
+
         {/* Product Image */}
         <div className="bg-white rounded-lg p-4 mb-4">
           <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
@@ -330,6 +341,60 @@ const ProductDetail = () => {
       </div>
 
       <Footer />
+
+      {/* Add to Cart Confirmation Modal */}
+      <Dialog open={showConfirmModal} onClose={() => setShowConfirmModal(false)} className="z-[101] fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="p-8 text-center">
+            <div className="w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaShoppingCart size={32} className="text-pink-600" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter mb-2">Confirm Add</h3>
+            <p className="text-gray-500 font-medium mb-6">Do you want to add <span className="text-gray-900 font-bold">{product?.name}</span> to your cart?</p>
+
+            {/* Quantity Selector in Modal */}
+            <div className="bg-gray-50 rounded-2xl p-4 mb-6">
+              <div className="flex items-center justify-between mb-3 text-sm font-bold text-gray-500 uppercase tracking-widest">
+                <span>Quantity</span>
+                <div className="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-gray-100">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-8 h-8 flex items-center justify-center text-pink-600 hover:bg-pink-50 rounded-lg transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="text-gray-900 w-4 text-center">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                    className="w-8 h-8 flex items-center justify-center text-pink-600 hover:bg-pink-50 rounded-lg transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Total Cost</span>
+                <span className="text-xl font-black text-pink-600 italic">₹{(product?.sale_price || product?.price || 0) * quantity}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="py-4 px-6 border-2 border-gray-100 rounded-2xl text-gray-400 font-black text-xs uppercase tracking-widest hover:bg-gray-50 transition-all active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeAddToCart}
+                className="py-4 px-6 bg-pink-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-pink-100 active:scale-95 transition-all"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };

@@ -2,8 +2,9 @@ import API_CONFIG from "../../config/api.config.js";
 import React, { useState, useEffect, useRef } from 'react';
 import Footer from '../SubPages/Footer';
 import Header from '../SubPages/Header';
-import { FaFilter, FaHeart, FaEye, FaStar, FaSearch, FaChevronUp, FaChevronDown, FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
+import { FaFilter, FaHeart, FaEye, FaStar, FaSearch, FaChevronUp, FaChevronDown, FaMicrophone, FaMicrophoneSlash, FaShoppingCart } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { Dialog } from '@headlessui/react';
 import banner1 from '../Images/banner1.png';
 import banner2 from '../Images/baner2.png';
 import banner3 from '../Images/banner3.png';
@@ -15,6 +16,8 @@ import catInstant from '../Images/cat_instant.png';
 import catDairy from '../Images/cat_dairy.png';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // -------------------------------------
 // Image Imports for Grocery Categories
@@ -38,6 +41,7 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
   const [quantity, setQuantity] = useState(1);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [showQuickViewModal, setShowQuickViewModal] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -72,11 +76,13 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
   const isInCart = !!cartItem;
 
   // Handlers for cart operations
-  const handleIncrement = () => {
+  const handleIncrement = async () => {
     if (isInCart) {
-      updateCartQuantity(cartItem._id || cartItem.id, quantity + 1);
+      await updateCartQuantity(cartItem._id || cartItem.id, quantity + 1);
     } else {
-      addToCart(item, 1);
+      setAdding(true);
+      await addToCart(item, 1);
+      setAdding(false);
     }
   };
 
@@ -192,10 +198,23 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
           <div className="flex flex-row items-center w-full gap-1">
             {!isInCart ? (
               <button
-                className="bg-[#00BB1C] hover:bg-[#009B16] text-white text-sm font-bold py-1.5 px-4 rounded-lg w-full transition-colors shadow-sm"
-                onClick={() => addToCart(item, 1)}
+                className={`text-white text-sm font-bold py-1.5 px-4 rounded-lg w-full transition-colors shadow-sm flex items-center justify-center ${adding ? 'bg-[#009B16] cursor-not-allowed' : 'bg-[#00BB1C] hover:bg-[#009B16]'
+                  }`}
+                onClick={async () => {
+                  setAdding(true);
+                  await addToCart(item, 1);
+                  setAdding(false);
+                }}
+                disabled={adding}
               >
-                Add to Cart
+                {adding ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Adding...
+                  </>
+                ) : (
+                  'Add to Cart'
+                )}
               </button>
             ) : (
               <div className="flex items-center justify-between w-full bg-white border border-[#00BB1C] rounded-lg overflow-hidden">
@@ -360,16 +379,9 @@ function Groceries() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const [forceRerender, setForceRerender] = useState(0); // for debug/test only
-  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingItem, setPendingItem] = useState(null);
   const navigate = useNavigate();
-
-  // Custom toast notification (same as e-commerce)
-  const showToast = (message, type = 'success') => {
-    setToast({ show: true, message, type });
-    setTimeout(() => {
-      setToast({ show: false, message: '', type: 'success' });
-    }, 3000);
-  };
 
   // Fetch items from backend on mount
   useEffect(() => {
@@ -457,7 +469,7 @@ function Groceries() {
 
   const toggleRecording = () => {
     if (!recognition) {
-      showToast('Speech recognition is not supported in your browser.', 'error');
+      toast.error('Speech recognition is not supported in your browser.');
       return;
     }
 
@@ -535,7 +547,7 @@ function Groceries() {
       // Save current URL for redirect after login
       sessionStorage.setItem('redirectUrl', window.location.pathname);
 
-      showToast('Session expired. Please log in again.', 'error');
+      toast.error('Session expired. Please log in again.');
       navigate('/login');
       return true;
     }
@@ -584,40 +596,51 @@ function Groceries() {
   }, []);
 
   const addToCart = async (item, quantity) => {
-    try {
-      // Prepare cart payload for database - only send what the backend expects
-      const cartPayload = {
-        grocery_id: item._id || item.id,
-        quantity: quantity
-      };
+    return new Promise((resolve) => {
+      setPendingItem({ item, quantity, resolve });
+      setShowConfirmModal(true);
+    });
+  };
 
-      console.log('Adding to cart:', cartPayload);
+  const handleConfirmAdd = async () => {
+    if (!pendingItem) return;
+    const { item, quantity, resolve } = pendingItem;
+    const itemToConfirm = item;
+    const qtyToConfirm = quantity;
+    const resolver = resolve;
+
+    setShowConfirmModal(false);
+    setPendingItem(null);
+
+    try {
+      // Prepare cart payload for database
+      const cartPayload = {
+        grocery_id: itemToConfirm._id || itemToConfirm.id,
+        quantity: qtyToConfirm
+      };
 
       const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
+          'Authorization': 'Bearer demo-token'
         },
         body: JSON.stringify(cartPayload)
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('Item added to cart:', item.name, 'Quantity:', quantity);
-        showToast(`Added ${quantity} ${item.name} to cart!`, 'success');
-
-        // Refresh cart items from database
+        toast.success(`Added ${qtyToConfirm} ${itemToConfirm.name} to cart!`);
         await fetchCartItems();
+        if (resolver) resolver(true);
       } else {
         const errorData = await response.json();
-        console.error('Add to cart failed:', errorData);
-        throw new Error(errorData.message || errorData.error || 'Failed to add to cart');
+        toast.error(errorData.message || 'Failed to add to cart');
+        if (resolver) resolver(false);
       }
-
     } catch (err) {
-      console.error('Error adding item to cart:', err);
-      showToast('Error adding item to cart. Please try again.', 'error');
+      console.error('Error adding to cart:', err);
+      toast.error('Error adding item to cart');
+      if (resolver) resolver(false);
     }
   };
 
@@ -633,15 +656,15 @@ function Groceries() {
       });
 
       if (response.ok) {
-        // showToast('Cart updated', 'success'); // Optional: reduce toast spam
+        // toast.success('Cart updated'); // Optional: reduce toast spam
         await fetchCartItems();
       } else {
         const errorData = await response.json();
-        showToast(errorData.error || 'Failed to update cart', 'error');
+        toast.error(errorData.error || 'Failed to update cart');
       }
     } catch (err) {
       console.error('Error updating cart:', err);
-      showToast('Error updating cart', 'error');
+      toast.error('Error updating cart');
     }
   };
 
@@ -656,15 +679,15 @@ function Groceries() {
       });
 
       if (response.ok) {
-        showToast('Item removed from cart', 'success');
+        toast.success('Item removed from cart');
         await fetchCartItems();
       } else {
         const errorData = await response.json();
-        showToast(errorData.error || 'Failed to remove item', 'error');
+        toast.error(errorData.error || 'Failed to remove item');
       }
     } catch (err) {
       console.error('Error removing from cart:', err);
-      showToast('Error removing item from cart', 'error');
+      toast.error('Error removing item from cart');
     }
   };
 
@@ -719,7 +742,7 @@ function Groceries() {
         });
 
         if (response.ok) {
-          showToast(`Removed ${item.name} from wishlist!`, 'success');
+          toast.success(`Removed ${item.name} from wishlist!`);
           await fetchWishlist(); // Refresh wishlist
         } else {
           throw new Error('Failed to remove from wishlist');
@@ -746,7 +769,7 @@ function Groceries() {
         });
 
         if (response.ok) {
-          showToast(`Added ${item.name} to wishlist!`, 'success');
+          toast.success(`Added ${item.name} to wishlist!`);
           await fetchWishlist(); // Refresh wishlist
         } else {
           throw new Error('Failed to add to wishlist');
@@ -755,7 +778,7 @@ function Groceries() {
 
     } catch (err) {
       console.error('Error updating wishlist:', err);
-      showToast('Error updating wishlist. Please try again.', 'error');
+      toast.error('Error updating wishlist. Please try again.');
     }
   };
 
@@ -800,22 +823,8 @@ function Groceries() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Custom Toast Notification */}
-      {toast.show && (
-        <div className={`fixed top-20 right-4 z-[10001] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${toast.type === 'success'
-          ? 'bg-green-500 text-white'
-          : 'bg-red-500 text-white'
-          }`}>
-          <div className="flex items-center space-x-2">
-            <span className="font-medium">{toast.message}</span>
-            <button
-              onClick={() => setToast({ show: false, message: '', type: 'success' })}
-              className="ml-2 text-white hover:text-gray-200"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Toast Notification */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
       <Header />
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-32">
@@ -1252,6 +1261,68 @@ function Groceries() {
       <div style={{ textAlign: 'center', fontSize: '10px', color: '#bbb', marginTop: 8 }}>
         🟢 LATEST BUILD: 2025-07-31T19:00:00 - VERCEL STATIC ROUTES FIX
       </div>
+
+      {/* Add to Cart Confirmation Modal */}
+      <Dialog open={showConfirmModal} onClose={() => {
+        setShowConfirmModal(false);
+        if (pendingItem?.resolve) pendingItem.resolve(false);
+        setPendingItem(null);
+      }} className="z-[10001] fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="p-8 text-center">
+            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaShoppingCart size={32} className="text-[#00BB1C]" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter mb-2">Confirm Add</h3>
+            <p className="text-gray-500 font-medium mb-6">Do you want to add <span className="text-gray-900 font-bold">{pendingItem?.item?.name}</span> to your cart?</p>
+
+            {/* Quantity Selector in Modal */}
+            <div className="bg-gray-50 rounded-2xl p-4 mb-6 text-left">
+              <div className="flex items-center justify-between mb-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                <span>Quantity</span>
+                <div className="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-gray-100">
+                  <button
+                    onClick={() => setPendingItem(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))}
+                    className="w-8 h-8 flex items-center justify-center text-[#00BB1C] hover:bg-green-50 rounded-lg transition-colors border border-green-50"
+                  >
+                    -
+                  </button>
+                  <span className="text-gray-900 w-4 text-center font-black">{pendingItem?.quantity || 1}</span>
+                  <button
+                    onClick={() => setPendingItem(prev => ({ ...prev, quantity: Math.min(20, (prev.quantity || 1) + 1) }))}
+                    className="w-8 h-8 flex items-center justify-center text-[#00BB1C] hover:bg-green-50 rounded-lg transition-colors border border-green-50"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Price</span>
+                <span className="text-xl font-black text-[#00BB1C] italic">₹{((pendingItem?.item?.discountedPrice || pendingItem?.item?.price || 0) * (pendingItem?.quantity || 1)).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  if (pendingItem?.resolve) pendingItem.resolve(false);
+                  setPendingItem(null);
+                }}
+                className="py-4 px-6 border-2 border-gray-100 rounded-2xl text-gray-400 font-black text-xs uppercase tracking-widest hover:bg-gray-50 transition-all active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAdd}
+                className="py-4 px-6 bg-[#00BB1C] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-green-100 active:scale-95 transition-all"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

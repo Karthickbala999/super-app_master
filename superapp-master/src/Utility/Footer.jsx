@@ -9,7 +9,7 @@ function Footer() {
     const { cart } = useCart();
 
     // Calculate total items in cart
-    const cartItemCount = cart?.items?.length || 0;
+    const cartItemCount = cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
 
     const navItems = [
         { id: "/home", icon: Home, label: "Home" },
@@ -30,9 +30,8 @@ function Footer() {
                             <div key={item.id} className="relative flex flex-col items-center justify-center w-full">
                                 <button
                                     onClick={() => navigate(item.id)}
-                                    className={`flex flex-col items-center justify-center relative ${
-                                        isActive ? "text-[#5C3FFF]" : "text-gray-500"
-                                    }`}
+                                    className={`flex flex-col items-center justify-center relative ${isActive ? "text-[#5C3FFF]" : "text-gray-500"
+                                        }`}
                                 >
                                     {/* Cart Badge - positioned relative to the icon */}
                                     {item.isCart && cartItemCount > 0 && (
@@ -40,13 +39,12 @@ function Footer() {
                                             {cartItemCount > 9 ? '9+' : cartItemCount}
                                         </div>
                                     )}
-                                    
+
                                     <IconComponent size={24} />
                                     <span className="text-xs mt-1">{item.label}</span>
                                     <div
-                                        className={`h-1 w-6 rounded-full mt-1 ${
-                                            isActive ? "bg-[#5C3FFF]" : "bg-transparent"
-                                        }`}
+                                        className={`h-1 w-6 rounded-full mt-1 ${isActive ? "bg-[#5C3FFF]" : "bg-transparent"
+                                            }`}
                                     ></div>
                                 </button>
                             </div>
@@ -64,11 +62,10 @@ function Footer() {
                             <div key={item.id} className="relative">
                                 <button
                                     onClick={() => navigate(item.id)}
-                                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors relative ${
-                                        isActive
+                                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors relative ${isActive
                                             ? "text-[#5C3FFF] bg-[#5C3FFF]/10"
                                             : "text-gray-600 hover:text-[#5C3FFF] hover:bg-gray-100"
-                                    }`}
+                                        }`}
                                 >
                                     {/* Cart Badge for Desktop */}
                                     {item.isCart && cartItemCount > 0 && (
@@ -76,7 +73,7 @@ function Footer() {
                                             {cartItemCount > 99 ? '99+' : cartItemCount}
                                         </div>
                                     )}
-                                    
+
                                     <IconComponent size={20} />
                                     <span className="text-sm font-medium">{item.label}</span>
                                 </button>

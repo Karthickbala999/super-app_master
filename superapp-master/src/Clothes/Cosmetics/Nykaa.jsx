@@ -131,7 +131,7 @@ const Banner = ({ id, src, alt, to, timer }) => (
 
 const App = () => (
   <div className="font-['Inter',Roboto,Arial,sans-serif] bg-white text-[14px] leading-[1] antialiased">
-    <MyntraClothesHeader />
+    <MyntraClothesHeader showBackButton={true} />
     <div className="pt-24 bg-white">
       <div className="max-w-[1600px] mx-auto px-[48px] lg:px-0">
         <div className="flex flex-row items-end">

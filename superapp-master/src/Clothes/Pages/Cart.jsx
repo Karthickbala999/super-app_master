@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MyntraClothesHeader from '../Header/MyntraClothesHeader';
 import Footer from '../../Utility/Footer';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../../Utility/CartContext'; // ✅ USE UNIFIED CART CONTEXT
+import { Dialog } from '@headlessui/react';
 
 const CLOTHES_ADDRESS_KEY = 'clothesUserAddresses';
 
@@ -14,6 +15,7 @@ function Cart() {
   const [error, setError] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const navigate = useNavigate();
 
   // ✅ TRANSFORM: Convert cart data to display format
@@ -165,6 +167,12 @@ function Cart() {
       return;
     }
 
+    // Show confirmation modal instead of direct navigation
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmPayment = () => {
+    setShowConfirmModal(false);
     // Pass the selected address to the payment page
     navigate('/home-clothes/payment', { state: { selectedAddress } });
   };
@@ -172,7 +180,7 @@ function Cart() {
   if (loading) {
     return (
       <div className="bg-white min-h-screen">
-        <MyntraClothesHeader />
+        <MyntraClothesHeader showBackButton={true} />
         <div className="pt-24 px-4">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -185,7 +193,7 @@ function Cart() {
 
   return (
     <div className="bg-white min-h-screen">
-      <MyntraClothesHeader />
+      <MyntraClothesHeader showBackButton={true} />
       <div className="pt-24 px-4 pb-20 max-w-[1248px] mx-auto">
         <div className="flex items-center gap-2 mb-6">
           <h1 className="text-2xl font-bold">My Cart</h1>
@@ -346,6 +354,61 @@ function Cart() {
         )}
       </div>
       <Footer />
+
+      {/* Payment Confirmation Modal */}
+      <Dialog open={showConfirmModal} onClose={() => setShowConfirmModal(false)} className="relative z-[200]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex-shrink-0">
+              <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaShoppingCart size={24} className="text-blue-600" />
+              </div>
+              <Dialog.Title className="text-xl font-black text-center text-gray-900 uppercase tracking-tight">Are You Ready To Buy?</Dialog.Title>
+              <p className="text-center text-gray-500 text-sm mt-1">Review your products before proceeding</p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                  <div className="h-16 w-16 bg-white rounded-lg flex-shrink-0 overflow-hidden border border-gray-200">
+                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <p className="text-sm font-bold text-gray-800 truncate">{item.name}</p>
+                    <p className="text-xs text-gray-500 mb-1">{item.category}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium bg-white px-2 py-0.5 rounded border border-gray-200 text-gray-600">Qty: {item.quantity}</span>
+                      <span className="text-sm font-black text-gray-900">₹{(item.discountedPrice * item.quantity).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-6 border-t border-gray-100 bg-white rounded-b-2xl flex-shrink-0">
+              <div className="flex justify-between items-center mb-4 text-gray-900">
+                <span className="font-bold text-sm uppercase tracking-wider text-gray-500">Total Amount</span>
+                <span className="text-2xl font-black">₹{total.toFixed(2)}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="py-3 px-4 border-2 border-gray-100 rounded-xl text-gray-500 font-bold text-xs uppercase tracking-widest hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmPayment}
+                  className="py-3 px-4 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all"
+                >
+                  Confirm & Pay
+                </button>
+              </div>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 }
