@@ -21,11 +21,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
+            set -e
+
             echo "✅ Connected to EC2"
 
             cd /home/ec2-user/super-app_master/superapp-master
 
             echo "📥 Pulling latest code"
+            git reset --hard
             git pull origin main
 
             echo "📦 Installing dependencies"
@@ -34,9 +37,13 @@ jobs:
             echo "🏗️ Building frontend"
             npm run build
 
-            echo "♻️ Restarting PM2"
-            pm2 restart superapp-frontend || pm2 start build.js --name superapp-frontend
+            echo "🧹 Cleaning old frontend files"
+            sudo rm -rf /var/www/html/*
 
-            pm2 save
+            echo "📤 Copying new build to Nginx"
+            sudo cp -r build/* /var/www/html/
 
-            echo "🚀 Deployment successful"
+            echo "🔄 Reloading Nginx"
+            sudo systemctl reload nginx
+
+            echo "🚀 Frontend Deployment Successful"
