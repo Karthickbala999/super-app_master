@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import bellIcon from "../Images/HomeScreen/bellIcon.svg";
 import { useNavigate } from 'react-router-dom';
+
 import { otpService } from '../services/otpService';
+import { authService } from '../services/authService';
 
 function OTP() {
     const navigate = useNavigate();
@@ -100,22 +102,15 @@ function OTP() {
 
                 const token = result.token;
                 if (token) {
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('urban_partner_token', token);
-                    console.log('Token stored for API access');
-
-                    // Mark user as logged in ONLY if token exists
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userEmail', pendingEmail);
-                    localStorage.setItem('userPhone', pendingPhone);
-
                     const userData = {
                         email: pendingEmail,
                         phone: pendingPhone,
                         isLoggedIn: true,
                         timestamp: new Date().toISOString()
                     };
-                    localStorage.setItem('userData', JSON.stringify(userData));
+
+                    // Use authService to set data (handles expiration and consistent storage)
+                    authService.setAuthData(null, userData, token);
 
                     // Clear pending OTP data
                     localStorage.removeItem('pendingEmail');

@@ -1,5 +1,5 @@
 import API_CONFIG from "../config/api.config.js";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../Images/Logo/E-STORE.svg";
 import { otpService } from '../services/otpService';
@@ -10,10 +10,36 @@ function Login({ onSuccess }) {
     const [phone, setPhone] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOnline(true);
+            setError(''); // Clear error when back online
+        };
+        const handleOffline = () => {
+            setIsOnline(false);
+            setError('No internet connection. Please check your network settings.');
+        };
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     const handleSendOtp = async () => {
         setError('');
+
+        if (!navigator.onLine) {
+            setError('No internet connection. Please check your network settings.');
+            return;
+        }
         if (!email || !phone) {
             setError('Please enter both email and phone number');
             return;
@@ -31,29 +57,8 @@ function Login({ onSuccess }) {
             console.log('🔧 Login: Environment variable:', process.env.REACT_APP_API_URL);
             console.log('🔧 Login: Window location:', window.location.href);
             console.log('🔧 Login: Hostname:', window.location.hostname);
-            
-            // Test connectivity first
-            console.log('🔧 Login: Testing connectivity to backend...');
-            const testUrl = API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.AUTH);
-            console.log('🔧 Login: Test URL:', testUrl);
-            
-            try {
-                const testResponse = await fetch(testUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                console.log('🔧 Login: Connectivity test response status:', testResponse.status);
-                console.log('🔧 Login: Connectivity test response headers:', testResponse.headers);
-            } catch (connectivityError) {
-                console.error('🔧 Login: Connectivity test failed:', connectivityError);
-                console.error('🔧 Login: Test URL that failed:', testUrl);
-                setError('Cannot connect to server. Please check your internet connection.');
-                setIsLoading(false);
-                return;
-            }
-            
+
+
             const result = await otpService.generateOTP(email, phone);
             console.log('Login: OTP generation result:', result);
 
@@ -96,9 +101,9 @@ function Login({ onSuccess }) {
                 <input
                     type="tel"
                     value={phone}
-                    onChange={e => { 
-                        const val = e.target.value; 
-                        if (/^\d*$/.test(val) && val.length <= 10) setPhone(val); 
+                    onChange={e => {
+                        const val = e.target.value;
+                        if (/^\d*$/.test(val) && val.length <= 10) setPhone(val);
                     }}
                     className="w-full p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
                     maxLength="10"

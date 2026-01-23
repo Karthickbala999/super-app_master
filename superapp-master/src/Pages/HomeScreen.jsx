@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import bannerClothes from "../Images/HomeScreen/bannerClothes.png";
-import bannerHotel from "../Images/HomeScreen/bannerHotel.png";
-import bannerFood from "../Images/HomeScreen/bannerFood.png";
-import bannerTaxi from "../Images/HomeScreen/bannerTaxi.png";
+import bannerClothes from "../Images/HomeScreen/bannerClothes.jpg";
+import bannerHotel from "../Images/HomeScreen/bannerHotel.jpg";
+import bannerFood from "../Images/HomeScreen/bannerFood.jpg";
+import bannerTaxi from "../Images/HomeScreen/bannerTaxi.jpg";
 import bannerGroceries from "../Images/HomeScreen/bannerGroceries.jpg";
-import bannerUrban from "../Images/HomeScreen/bannerUrban.png";
-import bannerCityMove from "../Images/HomeScreen/cityMoveBanner.png";
+import bannerUrban from "../Images/HomeScreen/bannerUrban.jpg";
+import bannerCityMove from "../Images/HomeScreen/cityMoveBanner.jpg";
 import bellIcon from "../Images/HomeScreen/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import { HiOutlineUser, HiOutlineLocationMarker } from "react-icons/hi";
@@ -113,7 +113,7 @@ const HomeScreen = () => {
             onClick={() => navigate("/home-grocery")}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-green-700/80 via-transparent to-green-700/20 z-10" />
-            <img src={bannerGroceries} alt="Grocery" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <img src={bannerGroceries} alt="Grocery" loading="eager" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute bottom-0 left-0 right-0 z-20 p-8">
               <h2 className="text-white text-4xl font-black tracking-tighter uppercase drop-shadow-lg leading-none">Grocery</h2>
               <p className="text-white/80 text-xs font-medium uppercase tracking-widest mt-2">Fresh & Local delivered fast</p>
@@ -126,7 +126,7 @@ const HomeScreen = () => {
             onClick={() => navigate("/home-clothes")}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-            <img src={bannerClothes} alt="E-commerce" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <img src={bannerClothes} alt="E-commerce" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute bottom-4 left-4 z-20">
               <h2 className="text-white text-lg font-black tracking-tight uppercase">E-commerce</h2>
             </div>
@@ -138,7 +138,7 @@ const HomeScreen = () => {
             onClick={() => navigate("/home-food")}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-            <img src={bannerFood} alt="Food" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <img src={bannerFood} alt="Food" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute bottom-4 left-4 z-20">
               <h2 className="text-white text-lg font-black tracking-tight uppercase">Food</h2>
             </div>
@@ -149,7 +149,7 @@ const HomeScreen = () => {
             onClick={() => navigate("/porter")}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 via-blue-600/40 to-transparent z-10" />
-            <img src={bannerCityMove} alt="City Move" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <img src={bannerCityMove} alt="City Move" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-center p-8">
               <h2 className="text-white text-3xl font-black tracking-tighter uppercase leading-none">City Move</h2>
               <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest mt-1">Instant Delivery</p>
@@ -162,7 +162,7 @@ const HomeScreen = () => {
             onClick={() => navigate("/home-hotel")}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-            <img src={bannerHotel} alt="Hotel" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <img src={bannerHotel} alt="Hotel" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute bottom-4 left-4 z-20">
               <h2 className="text-white text-lg font-black tracking-tight uppercase">Hotel</h2>
             </div>
@@ -174,7 +174,7 @@ const HomeScreen = () => {
             onClick={() => navigate("/home-taxi")}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-            <img src={bannerTaxi} alt="Taxi" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <img src={bannerTaxi} alt="Taxi" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute bottom-4 left-4 z-20">
               <h2 className="text-white text-lg font-black tracking-tight uppercase">Taxi</h2>
             </div>
@@ -186,7 +186,7 @@ const HomeScreen = () => {
             onClick={() => navigate("/urban-services")}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10" />
-            <img src={bannerUrban} alt="City Serve" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <img src={bannerUrban} alt="City Serve" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-center p-8">
               <h2 className="text-white text-3xl font-black tracking-tighter uppercase leading-none">City Serve</h2>
               <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest mt-1">Experts at your door</p>

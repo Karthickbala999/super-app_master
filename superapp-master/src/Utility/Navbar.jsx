@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import ExitConfirmation from './ExitConfirmation';
 import { FoodCartProvider } from './FoodCartContext';
 import Register from '../Auth/Register';
 import OTP from '../Auth/OTP';
@@ -190,6 +191,7 @@ function Navbar() {
   return (
     <FoodCartProvider>
       <BrowserRouter>
+        <ExitConfirmation />
         <LogoutButton />
         <Routes>
           {/* Public Routes */}
@@ -348,7 +350,7 @@ function Navbar() {
           <Route path='/urban-services' element={<ProtectedRoute><UrbanServicesHome /></ProtectedRoute>} />
           <Route path='/urban-services/category/:slug' element={<ProtectedRoute><BookService /></ProtectedRoute>} />
           <Route path='/urban-services/booking/:bookingId' element={<ProtectedRoute><BookingTracking /></ProtectedRoute>} />
-                    <Route path='/urban-services/partner' element={<ProtectedRoute><UrbanServicesPartner /></ProtectedRoute>} />
+          <Route path='/urban-services/partner' element={<ProtectedRoute><UrbanServicesPartner /></ProtectedRoute>} />
           <Route path='/urban-services/settings' element={<ProtectedRoute><UrbanServicesSettings /></ProtectedRoute>} />
           <Route path='/settings' element={<ProtectedRoute><UrbanServicesSettings /></ProtectedRoute>} />
 
