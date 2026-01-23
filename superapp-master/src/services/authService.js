@@ -19,23 +19,26 @@ const getHeaders = () => {
 };
 
 // Helper function to set authentication data
-const setAuthData = (data) => {
-  if (data.data && data.data.token) {
-    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.data.token);
+const setAuthData = (data, explicitUser = null, explicitToken = null) => {
+  const token = explicitToken || data?.data?.token || data?.token;
+  const user = explicitUser || data?.data?.user || data?.user;
+
+  if (token) {
+    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
     localStorage.setItem('isLoggedIn', 'true'); // Added for ProtectedRoute consistency
 
-    // Set token expiration (default to 24 hours if not provided)
-    const expiresIn = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    // Set token expiration (default to 7 days if not provided)
+    const expiresIn = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
     localStorage.setItem(
       STORAGE_KEYS.TOKEN_EXPIRATION,
       String(Date.now() + expiresIn)
     );
 
     // Store user data if available
-    if (data.data.user) {
+    if (user) {
       localStorage.setItem(
         STORAGE_KEYS.USER_DATA,
-        JSON.stringify(data.data.user)
+        JSON.stringify(user)
       );
     }
   }
@@ -123,6 +126,7 @@ export const authService = {
     localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     localStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRATION);
+    localStorage.removeItem('isLoggedIn'); // Clear this as well
   },
 
   // Get current user
@@ -145,6 +149,29 @@ export const authService = {
 
     return true;
   },
+  
+  // Validate session with backend
+  validateSession: async () => {
+    if (!authService.isAuthenticated()) return false;
+    
+    try {
+        const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.PROFILE), {
+            headers: getHeaders()
+        });
+        
+        if (response.ok) {
+            return true;
+        } else if (response.status === 401) {
+            authService.logout();
+            return false;
+        }
+        // For other errors (500, network), assume session is still valid locally to avoid jarring logout
+        return true;
+    } catch (error) {
+        console.error('Session validation error:', error);
+        return true; // Assume valid on network error to allow offline usage if needed
+    }
+  },
 
   // Get user profile
   getProfile: async () => {
@@ -154,6 +181,7 @@ export const authService = {
       });
 
       if (!response.ok) {
+        if (response.status === 401) authService.logout();
         throw new Error('Failed to fetch profile');
       }
 
@@ -189,16 +217,26 @@ export const authService = {
       },
     };
 
-    const response = await fetch(url, config);
+    try {
+        const response = await fetch(url, config);
 
-    if (response.status === 401) {
-      // Token is invalid or expired
-      authService.logout();
-      throw new Error('Session expired. Please log in again.');
+        if (response.status === 401) {
+          // Token is invalid or expired
+          authService.logout();
+          // Optional: You might want to reload the page or redirect here, 
+          // but letting the caller handle the error is often better.
+          // However, to ensure safety:
+           window.location.href = '/login'; 
+           throw new Error('Session expired. Please log in again.');
+        }
+
+        return response;
+    } catch (error) {
+        throw error;
     }
+  },
 
-    return response;
-  }
+  setAuthData // Exporting this for use in OTP.jsx
 };
 
 export { getHeaders, STORAGE_KEYS }; 
