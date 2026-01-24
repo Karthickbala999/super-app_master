@@ -24,7 +24,7 @@ const GOOGLE_MAPS_API_KEY = API_CONFIG.GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
 const mapContainerStyle = { width: '100%', height: '100%' };
 const defaultCenter = { lat: 13.0827, lng: 80.2707 };
-const API_BASE_URL = 'https://backend.citybells.in';
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 const BookService = () => {
   const navigate = useNavigate();
@@ -472,10 +472,10 @@ const BookService = () => {
                             onClick={() => !isDisabled && setSelectedTime(time)}
                             disabled={isDisabled}
                             className={`h-12 rounded-xl text-xs font-black transition-all border-2 ${isDisabled
-                                ? 'bg-gray-100 text-gray-300 border-gray-50 cursor-not-allowed'
-                                : selectedTime === time
-                                  ? 'bg-purple-600 text-white border-purple-600 shadow-lg'
-                                  : 'bg-white text-gray-600 border-gray-100 hover:border-purple-200'
+                              ? 'bg-gray-100 text-gray-300 border-gray-50 cursor-not-allowed'
+                              : selectedTime === time
+                                ? 'bg-purple-600 text-white border-purple-600 shadow-lg'
+                                : 'bg-white text-gray-600 border-gray-100 hover:border-purple-200'
                               }`}
                           >
                             {time}

@@ -75,10 +75,10 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://super-app-1-do45.onrender.com",
+    "REACT_APP_API_URL": "https://backend.citybells.in",
     "DISABLE_ESLINT_PLUGIN": "true",
     "GENERATE_SOURCEMAP": "false",
     "CI": "false",
     "SKIP_PREFLIGHT_CHECK": "true"
   }
-} 
+}

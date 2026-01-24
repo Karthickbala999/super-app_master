@@ -8,26 +8,34 @@ const API_CONFIG = {
   // Base URL - will be set from environment variable
   BASE_URL: (() => {
     // Check if we're in production
-    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
     const envVar = process.env.REACT_APP_API_URL;
 
     console.log('🔧 API Config Debug:', {
-      hostname: window.location.hostname,
-      isProduction,
+      hostname,
+      isLocal,
       envVar,
       NODE_ENV: process.env.NODE_ENV
     });
 
-    if (isProduction) {
-      const prodUrl = envVar || 'https://super-app-0ofo.onrender.com';
-      console.log('🔧 Using production URL:', prodUrl);
-      return prodUrl;
+    // If we're on localhost, use envVar if set, or local fallback
+    if (isLocal) {
+      const devUrl = envVar || 'http://localhost:3000';
+      console.log('🔧 Using development URL:', devUrl);
+      return devUrl;
     }
 
-    // Development fallback
-    const devUrl = envVar || 'http://localhost:3000';
-    console.log('🔧 Using development URL:', devUrl);
-    return devUrl;
+    // If we're on a hosted site (production), only use envVar if it's NOT a localhost URL
+    if (envVar && !envVar.includes('localhost') && !envVar.includes('127.0.0.1')) {
+      console.log('🔧 Using environment production URL:', envVar);
+      return envVar;
+    }
+
+    // Default hosted fallback
+    const prodUrl = 'https://backend.citybells.in';
+    console.log('🔧 Using default production URL:', prodUrl);
+    return prodUrl;
   })().toString().replace(/\/$/, ''), // Ensure no trailing slash and safe string conversion
 
   // Debug logging
