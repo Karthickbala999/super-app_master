@@ -33,7 +33,7 @@ const API_CONFIG = {
     }
 
     // Default hosted fallback
-    const prodUrl = 'https://backend.citybells.in';
+    const prodUrl = 'https://super-app-0ofo.onrender.com';
     console.log('🔧 Using default production URL:', prodUrl);
     return prodUrl;
   })().toString().replace(/\/$/, ''), // Ensure no trailing slash and safe string conversion
@@ -41,7 +41,7 @@ const API_CONFIG = {
   // Debug logging
   DEBUG: {
     ENV_VAR: process.env.REACT_APP_API_URL,
-    FINAL_URL: (process.env.REACT_APP_API_URL || 'https://backend.citybells.in').replace(/\/$/, ''),
+    FINAL_URL: (process.env.REACT_APP_API_URL || 'https://super-app-0ofo.onrender.com').replace(/\/$/, ''),
     NODE_ENV: process.env.NODE_ENV
   },
 
@@ -149,6 +149,6 @@ const API_CONFIG = {
   }
 };
 
-export default API_CONFIG; 
+export default API_CONFIG;
 
 
