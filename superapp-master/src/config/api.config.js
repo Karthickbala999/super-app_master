@@ -19,7 +19,7 @@ const API_CONFIG = {
     });
 
     if (isProduction) {
-      const prodUrl = envVar || 'https://backend.citybells.in';
+      const prodUrl = envVar || 'https://super-app-0ofo.onrender.com';
       console.log('🔧 Using production URL:', prodUrl);
       return prodUrl;
     }

@@ -2,14 +2,9 @@ import API_CONFIG from "../../config/api.config.js";
 import React, { useState, useEffect, useRef } from 'react';
 import Footer from '../SubPages/Footer';
 import Header from '../SubPages/Header';
-<<<<<<< HEAD
-import { FaFilter, FaHeart, FaEye, FaStar, FaSearch, FaChevronUp, FaChevronDown, FaMicrophone, FaMicrophoneSlash, FaShoppingCart } from 'react-icons/fa';
-import { motion } from 'framer-motion';
-import { Dialog } from '@headlessui/react';
-=======
-import { FaFilter, FaHeart, FaRegHeart, FaEye, FaStar, FaSearch, FaChevronUp, FaChevronDown, FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
+import { FaFilter, FaHeart, FaRegHeart, FaEye, FaStar, FaSearch, FaChevronUp, FaChevronDown, FaMicrophone, FaMicrophoneSlash, FaShoppingCart } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
+import { Dialog } from '@headlessui/react';
 import banner1 from '../Images/banner1.png';
 import banner2 from '../Images/baner2.png';
 import banner3 from '../Images/banner3.png';
@@ -101,12 +96,9 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
   const [quantity, setQuantity] = useState(1);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [showQuickViewModal, setShowQuickViewModal] = useState(false);
-<<<<<<< HEAD
   const [adding, setAdding] = useState(false);
-=======
   const [showSplash, setShowSplash] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -280,50 +272,30 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
         </div>
 
         <div className="flex justify-between items-center flex-wrap gap-y-1 mt-2">
-<<<<<<< HEAD
           <div className="flex flex-row items-center w-full gap-1">
-            {!isInCart ? (
-              <button
-                className={`text-white text-sm font-bold py-1.5 px-4 rounded-lg w-full transition-colors shadow-sm flex items-center justify-center ${adding ? 'bg-[#009B16] cursor-not-allowed' : 'bg-[#00BB1C] hover:bg-[#009B16]'
-                  }`}
-                onClick={async () => {
-                  setAdding(true);
-                  await addToCart(item, 1);
-                  setAdding(false);
-                }}
-                disabled={adding}
-              >
-                {adding ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Adding...
-                  </>
-                ) : (
-                  'Add to Cart'
-                )}
-              </button>
-            ) : (
-              <div className="flex items-center justify-between w-full bg-white border border-[#00BB1C] rounded-lg overflow-hidden">
-                <button
-                  className="w-8 h-8 flex items-center justify-center text-[#00BB1C] hover:bg-green-50 transition-colors font-bold text-lg"
-                  onClick={handleDecrement}
-=======
-          <div className="flex flex-row items-center w-full gap-1 h-9">
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="wait">
               {!isInCart ? (
-                <motion.button
-                  key="add-to-cart-btn"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.15 }}
-                  className="bg-[#00BB1C] hover:bg-[#009B16] text-white text-sm font-bold py-1.5 px-4 rounded-lg w-full transition-colors shadow-sm h-full"
-                  onClick={() => addToCart(item, 1)}
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
+                <button
+                  className={`text-white text-sm font-bold py-1.5 px-4 rounded-lg w-full transition-colors shadow-sm flex items-center justify-center ${adding ? 'bg-[#009B16] cursor-not-allowed' : 'bg-[#00BB1C] hover:bg-[#009B16]'
+                    }`}
+                  onClick={async () => {
+                    setAdding(true);
+                    await addToCart(item, 1);
+                    setAdding(false);
+                  }}
+                  disabled={adding}
                 >
-                  Add to Cart
-                </motion.button>
+                  {adding ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Adding...
+                    </>
+                  ) : (
+                    'Add to Cart'
+                  )}
+                </button>
               ) : (
+
                 <motion.div
                   key="quantity-controls"
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -711,7 +683,6 @@ function Groceries() {
   }, []);
 
   const addToCart = async (item, quantity) => {
-<<<<<<< HEAD
     return new Promise((resolve) => {
       setPendingItem({ item, quantity, resolve });
       setShowConfirmModal(true);
@@ -734,29 +705,6 @@ function Groceries() {
         grocery_id: itemToConfirm._id || itemToConfirm.id,
         quantity: qtyToConfirm
       };
-
-=======
-    // Optimistic Update: Add item immediately with a temp ID
-    const tempId = `temp_${Date.now()}`;
-    const tempCartItem = {
-      ...item,
-      _id: tempId,
-      id: tempId,
-      grocery_id: item._id || item.id,
-      groceryId: item._id || item.id,
-      quantity: quantity,
-      isTemp: true
-    };
-
-    setCartItems(prev => [...prev, tempCartItem]);
-
-    try {
-      const cartPayload = {
-        grocery_id: item._id || item.id,
-        quantity: quantity
-      };
-
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
       const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
         method: 'POST',
         headers: {
@@ -767,67 +715,20 @@ function Groceries() {
       });
 
       if (response.ok) {
-<<<<<<< HEAD
         toast.success(`Added ${qtyToConfirm} ${itemToConfirm.name} to cart!`);
         await fetchCartItems();
         if (resolver) resolver(true);
-=======
-        const data = await response.json();
-        const serverItem = data.data; // The real item from server with real _id
-
-        // Now synchronize the local state
-        setCartItems(prev => {
-          // Find if the temp item still exists or was removed
-          const exists = prev.find(i => i._id === tempId);
-          if (!exists) {
-            // User removed it while it was pending. We must delete it from server now.
-            removeFromCart(serverItem._id);
-            return prev;
-          }
-
-          // Update the item with real ID and remove isTemp
-          // Also check if quantity has drifted (user clicked + while pending)
-          return prev.map(i => {
-            if (i._id === tempId) {
-              const currentQty = i.quantity;
-
-              // If user increased quantity while pending, we need to sync that to server
-              if (currentQty !== quantity) {
-                // Determine the correct ID to use for update. We use serverItem._id now.
-                // We must call the un-modified update function logic here, essentially triggering the PUT
-                // Since updateCartQuantity handles "temp" checks, calling it with real id works.
-                updateCartQuantity(serverItem._id, currentQty);
-              }
-
-              return { ...i, ...serverItem, _id: serverItem._id, id: serverItem._id, quantity: currentQty, isTemp: false };
-            }
-            return i;
-          });
-        });
-
-        showToast(`Added ${item.name} to cart!`, 'success');
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
       } else {
         // Revert on failure
         setCartItems(prev => prev.filter(i => i._id !== tempId));
         const errorData = await response.json();
-<<<<<<< HEAD
         toast.error(errorData.message || 'Failed to add to cart');
         if (resolver) resolver(false);
-=======
-        throw new Error(errorData.message || 'Failed to add to cart');
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
       }
     } catch (err) {
-<<<<<<< HEAD
       console.error('Error adding to cart:', err);
       toast.error('Error adding item to cart');
       if (resolver) resolver(false);
-=======
-      setCartItems(prev => prev.filter(i => i._id !== tempId));
-      console.error('Error adding item to cart:', err);
-      showToast('Error adding item to cart', 'error');
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
     }
   };
 
@@ -853,7 +754,6 @@ function Groceries() {
         body: JSON.stringify({ quantity })
       });
 
-<<<<<<< HEAD
       if (response.ok) {
         // toast.success('Cart updated'); // Optional: reduce toast spam
         await fetchCartItems();
@@ -864,15 +764,6 @@ function Groceries() {
     } catch (err) {
       console.error('Error updating cart:', err);
       toast.error('Error updating cart');
-=======
-      if (!response.ok) {
-        // Revert or show error could go here, but for "Blinkit speed" we usually assume success or silent fail
-        // Ideally, fetchCartItems() to reset state on error
-        console.error("Failed to update cart quantity on server");
-      }
-    } catch (err) {
-      console.error('Error updating cart:', err);
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
     }
   };
 
@@ -895,7 +786,6 @@ function Groceries() {
       });
 
       if (response.ok) {
-<<<<<<< HEAD
         toast.success('Item removed from cart');
         await fetchCartItems();
       } else {
@@ -905,14 +795,6 @@ function Groceries() {
     } catch (err) {
       console.error('Error removing from cart:', err);
       toast.error('Error removing item from cart');
-=======
-        showToast('Item removed', 'success');
-      } else {
-        console.error("Failed to remove item from server");
-      }
-    } catch (err) {
-      console.error('Error removing from cart:', err);
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
     }
   };
 
@@ -973,13 +855,8 @@ function Groceries() {
         });
 
         if (response.ok) {
-<<<<<<< HEAD
           toast.success(`Removed ${item.name} from wishlist!`);
           await fetchWishlist(); // Refresh wishlist
-=======
-          showToast(`Removed ${item.name} from wishlist!`, 'success');
-          // No need to fetch immediately, UI is already correct
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
         } else {
           throw new Error('Failed to remove from wishlist');
         }
@@ -1026,22 +903,8 @@ function Groceries() {
         });
 
         if (response.ok) {
-<<<<<<< HEAD
           toast.success(`Added ${item.name} to wishlist!`);
           await fetchWishlist(); // Refresh wishlist
-=======
-          const data = await response.json();
-          const serverItem = data.data || data;
-
-          showToast(`Added ${item.name} to wishlist!`, 'success');
-
-          if (serverItem && (serverItem.id || serverItem._id)) {
-            const realId = serverItem.id || serverItem._id;
-            setWishlistItems(prev => prev.map(i =>
-              i.id === tempId ? { ...i, id: realId, _id: realId, isTemp: false } : i
-            ));
-          }
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
         } else {
           throw new Error('Failed to add to wishlist');
         }
@@ -1051,13 +914,8 @@ function Groceries() {
         setWishlistItems(previousWishlist);
         showToast('Error updating wishlist. Please try again.', 'error');
       }
-<<<<<<< HEAD
 
-    } catch (err) {
-      console.error('Error updating wishlist:', err);
-      toast.error('Error updating wishlist. Please try again.');
-=======
->>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
+
     }
   };
 
@@ -1606,4 +1464,4 @@ function Groceries() {
   );
 }
 
-export default Groceries; "// FORCE DEPLOY: $(date)" 
+export default Groceries; 
