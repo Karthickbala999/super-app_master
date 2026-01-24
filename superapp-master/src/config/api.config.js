@@ -25,7 +25,7 @@ const API_CONFIG = {
     }
 
     // Development fallback
-    const devUrl = envVar || 'http://localhost:5000';
+    const devUrl = envVar || 'http://localhost:3000';
     console.log('🔧 Using development URL:', devUrl);
     return devUrl;
   })().toString().replace(/\/$/, ''), // Ensure no trailing slash and safe string conversion
