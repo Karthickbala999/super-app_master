@@ -25,25 +25,31 @@ jobs:
 
             echo "✅ Connected to EC2"
 
-            cd /home/ec2-user/super-app_master/superapp-master
+            APP_DIR="/home/ec2-user/super-app_master/superapp-master"
+
+            cd $APP_DIR
+
+            echo "🧹 Hard cleaning repo (prevents git errors)"
+            sudo rm -rf build node_modules
+            git reset --hard
+            git clean -fd
 
             echo "📥 Pulling latest code"
-            git reset --hard
             git pull origin main
 
             echo "📦 Installing dependencies"
-            npm install
+            npm install --force
 
             echo "🏗️ Building frontend"
             npm run build
 
-            echo "🧹 Cleaning old frontend files"
+            echo "🧹 Cleaning Nginx root"
             sudo rm -rf /var/www/html/*
 
-            echo "📤 Copying new build to Nginx"
+            echo "📤 Deploying new build"
             sudo cp -r build/* /var/www/html/
 
             echo "🔄 Reloading Nginx"
             sudo systemctl reload nginx
 
-            echo "🚀 Frontend Deployment Successful"
+            echo "🚀 Frontend Deployment Completed Successfully"
