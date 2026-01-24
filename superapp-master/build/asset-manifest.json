@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.3c300a30.css",
-    "main.js": "/static/js/main.1b3361ad.js",
+    "main.css": "/static/css/main.92ed03b2.css",
+    "main.js": "/static/js/main.f4eec612.js",
     "static/js/453.570e6447.chunk.js": "/static/js/453.570e6447.chunk.js",
     "static/media/banner3.png": "/static/media/banner3.adca3b98282870b616b1.png",
     "static/media/womensWear.jpeg": "/static/media/womensWear.2655255edbbd86354835.jpeg",
@@ -32,6 +32,8 @@
     "static/media/bannerHotel.png": "/static/media/bannerHotel.58e5ff0e1a0695a2f566.png",
     "static/media/bannerFood.png": "/static/media/bannerFood.647d6bd485b04782f1c8.png",
     "static/media/bannerUrban.png": "/static/media/bannerUrban.60f8702b12c2338c0c4b.png",
+    "static/media/deep_cleaning.png": "/static/media/deep_cleaning.fb6589d97b6ddde718b6.png",
+    "static/media/cityMoveBanner.png": "/static/media/cityMoveBanner.31024e2a672107de41a6.png",
     "static/media/banner4.png": "/static/media/banner4.c8a4d2014aca0495f86a.png",
     "static/media/shirt.svg": "/static/media/shirt.f521dfdc85b6fdd9b936291206c25c59.svg",
     "static/media/cosmetic.jpg": "/static/media/cosmetic.6c9742139eed571ab7f2.jpg",
@@ -106,12 +108,12 @@
     "static/media/arrow-left.svg": "/static/media/arrow-left.5171e0caa0a83ca0b8cb7c3e846f9f99.svg",
     "static/media/noodles.svg": "/static/media/noodles.5211970bd6c67db999e580919b28e291.svg",
     "static/media/plus.svg": "/static/media/plus.d672b3a9cb2f7a3ecd68d223276da1fe.svg",
-    "main.3c300a30.css.map": "/static/css/main.3c300a30.css.map",
-    "main.1b3361ad.js.map": "/static/js/main.1b3361ad.js.map",
+    "main.92ed03b2.css.map": "/static/css/main.92ed03b2.css.map",
+    "main.f4eec612.js.map": "/static/js/main.f4eec612.js.map",
     "453.570e6447.chunk.js.map": "/static/js/453.570e6447.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3c300a30.css",
-    "static/js/main.1b3361ad.js"
+    "static/css/main.92ed03b2.css",
+    "static/js/main.f4eec612.js"
   ]
 }

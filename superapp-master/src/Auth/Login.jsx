@@ -59,6 +59,28 @@ function Login({ onSuccess }) {
             console.log('🔧 Login: Hostname:', window.location.hostname);
 
 
+            // Test connectivity first
+            console.log('🔧 Login: Testing connectivity to backend...');
+            const testUrl = API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.AUTH);
+            console.log('🔧 Login: Test URL:', testUrl);
+
+            try {
+                const testResponse = await fetch(testUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                console.log('🔧 Login: Connectivity test response status:', testResponse.status);
+                console.log('🔧 Login: Connectivity test response headers:', testResponse.headers);
+            } catch (connectivityError) {
+                console.error('🔧 Login: Connectivity test failed:', connectivityError);
+                console.error('🔧 Login: Test URL that failed:', testUrl);
+                setError('Cannot connect to server. Please check your internet connection.');
+                setIsLoading(false);
+                return;
+            }
+ 
             const result = await otpService.generateOTP(email, phone);
             console.log('Login: OTP generation result:', result);
 

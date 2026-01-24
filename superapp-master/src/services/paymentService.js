@@ -36,7 +36,7 @@ class PaymentService {
       console.log('🔑 PaymentService: Fetching Razorpay key from backend...');
       const response = await axios.get(`${this.baseURL}/razorpay-key`);
       console.log('🔑 PaymentService: Backend response:', response.data);
-      
+
       if (response.data.success) {
         const keyData = response.data.data;
         console.log('🔑 PaymentService: Key data:', {
@@ -44,14 +44,14 @@ class PaymentService {
           test_mode: keyData.test_mode,
           connectivity: keyData.connectivity
         });
-        
+
         if (keyData.connectivity === 'failed') {
           console.error('❌ PaymentService: Razorpay connectivity failed - payment service unavailable');
           console.error('❌ PaymentService: Please check Razorpay configuration in backend .env file');
           // Return null to indicate payment service is not available
           return null;
         }
-        
+
         return keyData.key_id;
       }
       throw new Error('Failed to get Razorpay key');
@@ -78,7 +78,7 @@ class PaymentService {
     try {
       console.log('🔍 PaymentService: createOrder called with data:', orderData);
       console.log('🔍 PaymentService: Headers:', this.getAuthHeaders());
-      
+
       const response = await axios.post(
         `${this.baseURL}/create-order`,
         orderData,
@@ -142,25 +142,25 @@ class PaymentService {
     try {
       console.log('📦 PaymentService: Creating order in database...');
       console.log('📦 PaymentService: Order data received:', orderData);
-      
+
       const orderModel = orderData.order_model || 'Order';
       console.log('📦 PaymentService: Order model:', orderModel);
-      
+
       if (orderModel === 'FoodOrder') {
         // Handle Food Order creation
         console.log('📦 PaymentService: Creating Food Order...');
-        
+
         try {
           // Step 1: Create or update food cart with items
           console.log('📦 PaymentService: Creating food cart with items...');
           const cartItems = orderData.order_data?.items || [];
-          
+
           // Clear existing cart first (this is needed for the backend to create the order)
           console.log('🧹 PaymentService: Clearing existing food cart...');
           await axios.delete(`${this.baseURL.replace('/payments', '')}/food-cart/clear`, {
             headers: this.getAuthHeaders()
           });
-          
+
           // Add items to cart
           console.log('➕ PaymentService: Adding items to food cart...');
           for (const item of cartItems) {
@@ -170,12 +170,12 @@ class PaymentService {
               price: item.price,
               special_instructions: item.special_instructions || ''
             };
-            
+
             await axios.post(`${this.baseURL.replace('/payments', '')}/food-cart/add`, cartItemPayload, {
               headers: this.getAuthHeaders()
             });
           }
-          
+
           // Step 2: Create food order from cart
           const orderPayload = {
             delivery_address: orderData.order_data?.delivery_address || {
@@ -209,16 +209,16 @@ class PaymentService {
       } else if (orderModel === 'Order') {
         // Handle regular E-commerce Order creation
         console.log('📦 PaymentService: Creating E-commerce Order...');
-        
+
         try {
           // Get user's cart items
           console.log('📦 PaymentService: Fetching cart items...');
           const cartResponse = await axios.get(`${this.baseURL.replace('/payments', '')}/cart`, {
             headers: this.getAuthHeaders()
           });
-          
+
           console.log('📦 PaymentService: Cart response:', cartResponse.data);
-          
+
           if (!cartResponse.data.success || !cartResponse.data.data?.items?.length) {
             throw new Error('Cart is empty');
           }
@@ -255,7 +255,7 @@ class PaymentService {
       } else if (orderModel === 'Booking') {
         // Handle Hotel Booking creation
         console.log('📦 Creating Hotel Booking...');
-        
+
         // Format booking data according to backend model requirements
         const bookingPayload = {
           hotel_id: orderData.order_data.hotel_id,
@@ -285,114 +285,114 @@ class PaymentService {
           headers: this.getAuthHeaders()
         });
 
-                 console.log('✅ Booking created in database:', response.data);
-         return {
-           success: true,
-           data: response.data
-         };
-       } else if (orderModel === 'GroceryOrder') {
-         // Handle Grocery Order creation
-         console.log('📦 Creating Grocery Order...');
-         
-         // Format grocery order data according to backend model requirements
-         const groceryOrderPayload = {
-           total_amount: orderData.order_data.total_amount,
-           shipping_address: orderData.order_data.shipping_address || 'Default Address',
-           payment_method: 'razorpay',
-           items: orderData.order_data.items.map(item => ({
-             grocery_id: item.grocery_id,
-             quantity: item.quantity,
-             price: item.price
-           })) || []
-         };
+        console.log('✅ Booking created in database:', response.data);
+        return {
+          success: true,
+          data: response.data
+        };
+      } else if (orderModel === 'GroceryOrder') {
+        // Handle Grocery Order creation
+        console.log('📦 Creating Grocery Order...');
 
-         console.log('📦 Sending grocery order payload:', groceryOrderPayload);
-         const response = await axios.post(`${this.baseURL.replace('/payments', '')}/gorders`, groceryOrderPayload, {
-           headers: this.getAuthHeaders()
-         });
+        // Format grocery order data according to backend model requirements
+        const groceryOrderPayload = {
+          total_amount: orderData.order_data.total_amount,
+          shipping_address: orderData.order_data.shipping_address || 'Default Address',
+          payment_method: 'razorpay',
+          items: orderData.order_data.items.map(item => ({
+            grocery_id: item.grocery_id,
+            quantity: item.quantity,
+            price: item.price
+          })) || []
+        };
 
-                   console.log('✅ Grocery Order created in database:', response.data);
-          console.log('🔍 Grocery Order response structure:', {
-            success: response.data.success,
-            message: response.data.message,
-            dataKeys: response.data.data ? Object.keys(response.data.data) : 'No data',
-            dataId: response.data.data?._id,
-            fullData: response.data.data
-          });
-          return {
-            success: true,
-            data: response.data.data  // Return the actual order object, not the wrapper
-          };
-       } else if (orderModel === 'TaxiRide') {
-         // Handle Taxi Ride creation
-         console.log('📦 Creating Taxi Ride...');
-         
-         // Format taxi ride data according to backend model requirements
-         const taxiRidePayload = {
-           user_id: orderData.order_data.user_id,
-           driver_id: orderData.order_data.driver_id || '507f1f77bcf86cd799439011', // Default driver ID
-           vehicle_id: orderData.order_data.vehicle_id || '507f1f77bcf86cd799439012', // Default vehicle ID
-           pickup_location: orderData.order_data.pickup_location,
-           dropoff_location: orderData.order_data.dropoff_location,
-           distance: orderData.order_data.distance || 0,
-           duration: orderData.order_data.duration || 0,
-           fare: orderData.order_data.fare,
-           payment_method: 'razorpay',
-           payment_status: 'pending'
-         };
+        console.log('📦 Sending grocery order payload:', groceryOrderPayload);
+        const response = await axios.post(`${this.baseURL.replace('/payments', '')}/gorders`, groceryOrderPayload, {
+          headers: this.getAuthHeaders()
+        });
 
-         console.log('📦 Sending taxi ride payload:', taxiRidePayload);
-         const response = await axios.post(`${this.baseURL.replace('/payments', '')}/taxi-rides`, taxiRidePayload, {
-           headers: this.getAuthHeaders()
-         });
+        console.log('✅ Grocery Order created in database:', response.data);
+        console.log('🔍 Grocery Order response structure:', {
+          success: response.data.success,
+          message: response.data.message,
+          dataKeys: response.data.data ? Object.keys(response.data.data) : 'No data',
+          dataId: response.data.data?._id,
+          fullData: response.data.data
+        });
+        return {
+          success: true,
+          data: response.data.data  // Return the actual order object, not the wrapper
+        };
+      } else if (orderModel === 'TaxiRide') {
+        // Handle Taxi Ride creation
+        console.log('📦 Creating Taxi Ride...');
 
-         console.log('✅ Taxi Ride created in database:', response.data);
-         return {
-           success: true,
-           data: response.data.data
-         };
-       } else if (orderModel === 'PorterBooking') {
-         // Handle Porter Booking creation
-         console.log('📦 Creating Porter Booking...');
-         
-         const porterBookingPayload = {
-           user_id: orderData.order_data.user_id,
-           driver_id: orderData.order_data.driver_id || '507f1f77bcf86cd799439011', // Default driver ID
-           vehicle_id: orderData.order_data.vehicle_id || '507f1f77bcf86cd799439012', // Default vehicle ID
-           pickup_location: orderData.order_data.pickup_location,
-           dropoff_location: orderData.order_data.dropoff_location,
-           vehicle_type: orderData.order_data.vehicle_type || 'Bike',
-           distance: orderData.order_data.distance || 0,
-           fare: orderData.order_data.fare,
-           payment_method: 'razorpay',
-           payment_status: 'pending',
-           item_description: orderData.order_data.item_description || 'General delivery',
-           item_weight: orderData.order_data.item_weight || 0,
-           special_instructions: orderData.order_data.special_instructions || ''
-         };
+        // Format taxi ride data according to backend model requirements
+        const taxiRidePayload = {
+          user_id: orderData.order_data.user_id,
+          driver_id: orderData.order_data.driver_id || '507f1f77bcf86cd799439011', // Default driver ID
+          vehicle_id: orderData.order_data.vehicle_id || '507f1f77bcf86cd799439012', // Default vehicle ID
+          pickup_location: orderData.order_data.pickup_location,
+          dropoff_location: orderData.order_data.dropoff_location,
+          distance: orderData.order_data.distance || 0,
+          duration: orderData.order_data.duration || 0,
+          fare: orderData.order_data.fare,
+          payment_method: 'razorpay',
+          payment_status: 'pending'
+        };
 
-         console.log('📦 Sending porter booking payload:', porterBookingPayload);
-         const response = await axios.post(`${this.baseURL.replace('/payments', '')}/porter-bookings`, porterBookingPayload, {
-           headers: this.getAuthHeaders()
-         });
+        console.log('📦 Sending taxi ride payload:', taxiRidePayload);
+        const response = await axios.post(`${this.baseURL.replace('/payments', '')}/taxi-rides`, taxiRidePayload, {
+          headers: this.getAuthHeaders()
+        });
 
-         console.log('✅ Porter Booking created in database:', response.data);
-         return {
-           success: true,
-           data: response.data.data
-         };
-       } else {
+        console.log('✅ Taxi Ride created in database:', response.data);
+        return {
+          success: true,
+          data: response.data.data
+        };
+      } else if (orderModel === 'PorterBooking') {
+        // Handle Porter Booking creation
+        console.log('📦 Creating Porter Booking...');
+
+        const porterBookingPayload = {
+          user_id: orderData.order_data.user_id,
+          driver_id: orderData.order_data.driver_id || '507f1f77bcf86cd799439011', // Default driver ID
+          vehicle_id: orderData.order_data.vehicle_id || '507f1f77bcf86cd799439012', // Default vehicle ID
+          pickup_location: orderData.order_data.pickup_location,
+          dropoff_location: orderData.order_data.dropoff_location,
+          vehicle_type: orderData.order_data.vehicle_type || 'Bike',
+          distance: orderData.order_data.distance || 0,
+          fare: orderData.order_data.fare,
+          payment_method: 'razorpay',
+          payment_status: 'pending',
+          item_description: orderData.order_data.item_description || 'General delivery',
+          item_weight: orderData.order_data.item_weight || 0,
+          special_instructions: orderData.order_data.special_instructions || ''
+        };
+
+        console.log('📦 Sending porter booking payload:', porterBookingPayload);
+        const response = await axios.post(`${this.baseURL.replace('/payments', '')}/porter-bookings`, porterBookingPayload, {
+          headers: this.getAuthHeaders()
+        });
+
+        console.log('✅ Porter Booking created in database:', response.data);
+        return {
+          success: true,
+          data: response.data.data
+        };
+      } else {
         // Handle regular E-commerce Order creation
         console.log('📦 Creating E-commerce Order...');
-        
+
         // Get user's cart items
         console.log('📦 Fetching cart items...');
         const cartResponse = await axios.get(`${this.baseURL.replace('/payments', '')}/cart`, {
           headers: this.getAuthHeaders()
         });
-        
+
         console.log('📦 Cart response:', cartResponse.data);
-        
+
         if (!cartResponse.data.success || !cartResponse.data.data?.items?.length) {
           throw new Error('Cart is empty');
         }
@@ -443,7 +443,7 @@ class PaymentService {
       // Step 1: Create order in database first
       console.log('📦 PaymentService: Creating order in database...');
       const dbOrderResponse = await this.createOrderInDatabase(orderData);
-      
+
       if (!dbOrderResponse.success) {
         throw new Error(dbOrderResponse.message || 'Failed to create order in database');
       }
@@ -454,26 +454,26 @@ class PaymentService {
       const razorpayKey = await this.getRazorpayKey();
       const isTestMode = razorpayKey === 'rzp_test_51O8X8X8X8X8X8';
       const isPaymentUnavailable = razorpayKey === null;
-      
-                      if (isTestMode || isPaymentUnavailable) {
-          console.error('❌ PaymentService: Razorpay is not properly configured. Payment cannot proceed.');
-          console.error('❌ PaymentService: Please configure Razorpay keys in the backend .env file.');
-          
-          // Show user-friendly error message instead of cancelling order
-          const errorMessage = 'Payment service is temporarily unavailable. Please try again later or contact support.';
-          
-          if (options.onError) {
-            options.onError(new Error(errorMessage));
-          }
-          
-          // Don't throw error, just return failure
-          return { 
-            success: false, 
-            error: errorMessage,
-            orderCreated: true,
-            orderId: dbOrderResponse.data._id
-          };
+
+      if (isTestMode || isPaymentUnavailable) {
+        console.error('❌ PaymentService: Razorpay is not properly configured. Payment cannot proceed.');
+        console.error('❌ PaymentService: Please configure Razorpay keys in the backend .env file.');
+
+        // Show user-friendly error message instead of cancelling order
+        const errorMessage = 'Payment service is temporarily unavailable. Please try again later or contact support.';
+
+        if (options.onError) {
+          options.onError(new Error(errorMessage));
         }
+
+        // Don't throw error, just return failure
+        return {
+          success: false,
+          error: errorMessage,
+          orderCreated: true,
+          orderId: dbOrderResponse.data._id
+        };
+      }
 
       // Step 3: Create Razorpay order (normal flow)
       console.log('💳 PaymentService: Creating Razorpay order...');
@@ -489,7 +489,7 @@ class PaymentService {
 
       console.log('💳 PaymentService: Payment order data:', paymentOrderData);
       const orderResponse = await this.createOrder(paymentOrderData);
-      
+
       if (!orderResponse.success) {
         throw new Error(orderResponse.message || 'Failed to create order');
       }
@@ -501,7 +501,7 @@ class PaymentService {
       // Step 4: Get Razorpay key and initialize checkout
       console.log('🔑 PaymentService: Getting Razorpay key...');
       console.log('🔑 PaymentService: Razorpay key obtained:', razorpayKey ? 'Success' : 'Failed');
-      
+
       if (!razorpayKey) {
         throw new Error('Payment service is not available. Please try again later.');
       }
@@ -566,14 +566,14 @@ class PaymentService {
             };
 
             const verificationResponse = await this.verifyPayment(verificationData);
-            
+
             if (verificationResponse.success) {
               // Payment successful - include database order data
               const successData = {
                 ...verificationResponse.data,
                 dbOrder: dbOrderResponse.data
               };
-              
+
               if (options.onSuccess) {
                 options.onSuccess(successData);
               }

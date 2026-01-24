@@ -5,6 +5,7 @@ import leftarrow from "../../Icons/arrow-left.svg";
 import bellIcon from "../../Images/HomeScreen/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
+import notificationService from "../../services/notificationService";
 
 // Extracted LocationDisplay component for reuse
 export function LocationDisplay() {
@@ -157,9 +158,9 @@ export function LocationDisplay() {
                 >
                     {locationData.isLoading ? "Getting location..." : locationData.shortAddress}
                 </span>
-                <img 
-                    src={location} 
-                    alt="Location" 
+                <img
+                    src={location}
+                    alt="Location"
                     className="w-6 h-6 cursor-pointer ml-1 flex-shrink-0"
                     onClick={getCurrentLocation}
                     title="Click to get current location"
@@ -181,44 +182,57 @@ export function LocationDisplay() {
 function Header() {
     const navigate = useNavigate();
     const [cartItemCount, setCartItemCount] = useState(0);
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
 
-    // Fetch cart items count on mount and when component updates
+    // Fetch counts on mount and periodic refresh
     useEffect(() => {
-        const fetchCartCount = async () => {
+        const refreshCounts = async () => {
             try {
-                const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
+                // Cart Count
+                const cartResponse = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer demo-token'
                     }
                 });
-                
-                if (response.ok) {
-                    const responseData = await response.json();
+
+                if (cartResponse.ok) {
+                    const responseData = await cartResponse.json();
                     const cartData = responseData.data || [];
                     setCartItemCount(cartData.length);
-                } else {
-                    setCartItemCount(0);
                 }
+
+                // Unread Notifications
+                setUnreadNotifications(notificationService.getUnreadCount());
+
             } catch (err) {
-                console.error('Error loading cart count:', err);
-                setCartItemCount(0);
+                console.error('Error refreshing header counts:', err);
             }
         };
 
-        fetchCartCount();
-
-        // Set up interval to refresh cart count every 2 seconds
-        const interval = setInterval(fetchCartCount, 2000);
-
+        refreshCounts();
+        const interval = setInterval(refreshCounts, 2000);
         return () => clearInterval(interval);
     }, []);
 
+    const handleNotificationClick = () => {
+        notificationService.requestPermission();
+        navigate('/home-grocery/notification');
+    };
+
     return (
-        <div className="fixed top-0 left-0 w-full bg-white shadow-md flex flex-row items-center justify-between pt-8 px-4 pb-2 z-50">
+        <div className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 flex flex-row items-center justify-between pt-8 px-4 pb-3 z-50">
             <div className="flex items-center gap-2 min-w-0">
-                <img src={leftarrow} alt="arrow" className="w-6 h-6 cursor-pointer flex-shrink-0" onClick={()=> navigate(-1)}/> 
-                <img src={bellIcon} alt='E-STORE' className="w-8 h-8" />
+                <img src={leftarrow} alt="arrow" className="w-6 h-6 cursor-pointer flex-shrink-0 hover:scale-110 transition-transform" onClick={() => navigate(-1)} />
+
+                <div className="relative cursor-pointer group" onClick={handleNotificationClick}>
+                    <img src={bellIcon} alt='Notifications' className="w-8 h-8 group-hover:shake transition-all" />
+                    {unreadNotifications > 0 && (
+                        <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
+                            {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                        </div>
+                    )}
+                </div>
             </div>
             <div className="flex items-center gap-4">
                 <LocationDisplay />

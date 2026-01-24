@@ -39,8 +39,13 @@ function Address() {
             return;
         }
 
+        if (!/^\d{6}$/.test(pincode)) {
+            alert('Pincode must be exactly 6 digits.');
+            return;
+        }
+
         setLoading(true);
-        
+
         const newAddress = {
             fullName,
             phoneNumber,
@@ -75,7 +80,7 @@ function Address() {
         setLocationLoading(true);
         try {
             const locationData = await AddressService.getCurrentLocation();
-            
+
             // Extract address components from Google Maps result
             const components = locationData.addressComponents;
             let addressData = {
@@ -107,7 +112,7 @@ function Address() {
             setState(addressData.state);
             setPincode(addressData.pincode);
             setCountry(addressData.country);
-            
+
             console.log('Location fetched successfully:', locationData);
         } catch (error) {
             console.error('Error getting location:', error);
@@ -172,7 +177,7 @@ function Address() {
         setState(addressData.state);
         setPincode(addressData.pincode);
         setCountry(addressData.country);
-        
+
         // Clear search
         setSearchQuery('');
         setSearchResults([]);
@@ -216,7 +221,7 @@ function Address() {
                             </svg>
                         </div>
                     </div>
-                    
+
                     {/* Search Results Dropdown */}
                     {showSearchResults && searchResults.length > 0 && (
                         <div className="absolute z-10 w-full max-w-md mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -235,144 +240,144 @@ function Address() {
                 </div>
 
                 <div className='border-t border-gray-200 pt-4'>
-                <div className='pt-2'>
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Full name</label>
-                    <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
+                    <div className='pt-2'>
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Full name</label>
+                        <input
+                            type="text"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
 
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Phone number</label>
-                    <input
-                        type="number"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Phone number</label>
+                        <input
+                            type="number"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
 
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Alternative phone number</label>
-                    <input
-                        type="number"
-                        value={altPhoneNumber}
-                        onChange={(e) => setAltPhoneNumber(e.target.value)}
-                        className=" bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Alternative phone number</label>
+                        <input
+                            type="number"
+                            value={altPhoneNumber}
+                            onChange={(e) => setAltPhoneNumber(e.target.value)}
+                            className=" bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
 
-                    <label className="mt-4 block text-sm text-gray-600 w-full">House no, Building name*</label>
-                    <input
-                        type="text"
-                        value={houseNo}
-                        onChange={(e) => setHouseNo(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
+                        <label className="mt-4 block text-sm text-gray-600 w-full">House no, Building name*</label>
+                        <input
+                            type="text"
+                            value={houseNo}
+                            onChange={(e) => setHouseNo(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
 
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Address Line 2 (Apartment, Suite, etc.)</label>
-                    <input
-                        type="text"
-                        value={addressLine2}
-                        onChange={(e) => setAddressLine2(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Address Line 2 (Apartment, Suite, etc.)</label>
+                        <input
+                            type="text"
+                            value={addressLine2}
+                            onChange={(e) => setAddressLine2(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
 
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Road name, Area, Colony*</label>
-                    <input
-                        type="text"
-                        value={roadName}
-                        onChange={(e) => setRoadName(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Road name, Area, Colony*</label>
+                        <input
+                            type="text"
+                            value={roadName}
+                            onChange={(e) => setRoadName(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
 
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Near by landmark*</label>
-                    <input
-                        type="text"
-                        value={landmark}
-                        onChange={(e) => setLandmark(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Near by landmark*</label>
+                        <input
+                            type="text"
+                            value={landmark}
+                            onChange={(e) => setLandmark(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
 
-                    <div className="flex gap-x-4 mt-4">
-                        <div className="w-1/2">
-                            <label className="block text-sm text-gray-600">City*</label>
-                            <input
-                                type="text"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                                className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                            />
+                        <div className="flex gap-x-4 mt-4">
+                            <div className="w-1/2">
+                                <label className="block text-sm text-gray-600">City*</label>
+                                <input
+                                    type="text"
+                                    value={city}
+                                    onChange={(e) => setCity(e.target.value)}
+                                    className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                                />
+                            </div>
+                            <div className="w-1/2">
+                                <label className="block text-sm text-gray-600">State*</label>
+                                <input
+                                    type="text"
+                                    value={state}
+                                    onChange={(e) => setState(e.target.value)}
+                                    className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                                />
+                            </div>
                         </div>
-                        <div className="w-1/2">
-                            <label className="block text-sm text-gray-600">State*</label>
-                            <input
-                                type="text"
-                                value={state}
-                                onChange={(e) => setState(e.target.value)}
-                                className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                            />
+
+                        <div className="flex gap-x-4 mt-4">
+                            <div className="w-1/2">
+                                <label className="block text-sm text-gray-600">Pincode*</label>
+                                <input
+                                    type="text"
+                                    value={pincode}
+                                    onChange={(e) => setPincode(e.target.value)}
+                                    className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                                />
+                            </div>
+                            <div className="w-1/2">
+                                <label className="block text-sm text-gray-600">Country</label>
+                                <input
+                                    type="text"
+                                    value={country}
+                                    onChange={(e) => setCountry(e.target.value)}
+                                    className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                                />
+                            </div>
                         </div>
+
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Company Name (Optional)</label>
+                        <input
+                            type="text"
+                            value={companyName}
+                            onChange={(e) => setCompanyName(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                        />
+
+                        <label className="mt-4 block text-sm text-gray-600 w-full">Delivery Instructions (Optional)</label>
+                        <textarea
+                            value={deliveryInstructions}
+                            onChange={(e) => setDeliveryInstructions(e.target.value)}
+                            className="bg-white w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
+                            rows="3"
+                        />
                     </div>
 
-                    <div className="flex gap-x-4 mt-4">
-                        <div className="w-1/2">
-                            <label className="block text-sm text-gray-600">Pincode*</label>
-                            <input
-                                type="text"
-                                value={pincode}
-                                onChange={(e) => setPincode(e.target.value)}
-                                className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                            />
-                        </div>
-                        <div className="w-1/2">
-                            <label className="block text-sm text-gray-600">Country</label>
-                            <input
-                                type="text"
-                                value={country}
-                                onChange={(e) => setCountry(e.target.value)}
-                                className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                            />
-                        </div>
+                    <div className='font-medium text-base  pt-4'>Select Type</div>
+
+                    <div className="flex space-x-2  pt-2">
+                        {buttons.map((btn) => (
+                            <button
+                                key={btn}
+                                onClick={() => setSelected(btn)}
+                                className={`px-4 py-1 rounded-full border ${selected === btn
+                                    ? "bg-[#5C3FFF] text-white"
+                                    : "bg-white text-black border-gray-300"
+                                    }`}
+                            >
+                                {btn}
+                            </button>
+                        ))}
                     </div>
-
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Company Name (Optional)</label>
-                    <input
-                        type="text"
-                        value={companyName}
-                        onChange={(e) => setCompanyName(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                    />
-
-                    <label className="mt-4 block text-sm text-gray-600 w-full">Delivery Instructions (Optional)</label>
-                    <textarea
-                        value={deliveryInstructions}
-                        onChange={(e) => setDeliveryInstructions(e.target.value)}
-                        className="bg-white w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C3FFF] mt-1"
-                        rows="3"
-                    />
-                </div>
-
-                <div className='font-medium text-base  pt-4'>Select Type</div>
-
-                <div className="flex space-x-2  pt-2">
-                    {buttons.map((btn) => (
-                        <button
-                            key={btn}
-                            onClick={() => setSelected(btn)}
-                            className={`px-4 py-1 rounded-full border ${selected === btn
-                                ? "bg-[#5C3FFF] text-white"
-                                : "bg-white text-black border-gray-300"
-                                }`}
-                        >
-                            {btn}
-                        </button>
-                    ))}
-                </div>
-                <button
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    className="w-full px-4 py-2 bg-[#5C3FFF] text-white rounded-[50px] mt-6 disabled:opacity-50 disabled:cursor-not-allowed" >
-                    {loading ? 'Saving...' : 'Save Address'}
-                </button>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-[#5C3FFF] text-white rounded-[50px] mt-6 disabled:opacity-50 disabled:cursor-not-allowed" >
+                        {loading ? 'Saving...' : 'Save Address'}
+                    </button>
                 </div>
             </div>
         </div>

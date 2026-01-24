@@ -31,52 +31,81 @@ const HomeScreen = () => {
   const [locationError, setLocationError] = useState("");
   const [loadingLocation, setLoadingLocation] = useState(true);
   const [city, setCity] = useState({
+    road: "",
     area: "",
     city: "",
     state: "",
     pincode: "",
   });
   const [loadingCity, setLoadingCity] = useState(false);
+  const lastFetchedCoords = React.useRef(null);
 
   useEffect(() => {
+    let watchId;
     if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
+      watchId = navigator.geolocation.watchPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
           setLocation({ latitude, longitude });
           setLoadingLocation(false);
+          setLocationError("");
         },
-        () => {
-          setLocationError("Location access denied");
-          setLoadingLocation(false);
+        (error) => {
+          console.error("Location error:", error);
+          if (error.code === 1) { // PERMISSION_DENIED
+            setLocationError("Location access denied");
+          }
+          // Only stop loading if we don't have a location yet
+          if (!location) {
+            setLoadingLocation(false);
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 5000,
         }
       );
     } else {
       setLocationError("Geolocation not supported");
       setLoadingLocation(false);
     }
+
+    return () => {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+    };
   }, []);
 
   useEffect(() => {
     if (location && !locationError) {
-      setLoadingCity(true);
-      fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${location.latitude}&lon=${location.longitude}&format=json`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          const address = data.address;
-          const area = address.suburb || address.neighbourhood || "";
-          const cityName = address.city || address.town || "";
-          const state = address.state || "";
-          const pincode = address.postcode || "";
-          setCity({ area, city: cityName, state, pincode });
-          setLoadingCity(false);
-        })
-        .catch(() => {
-          setCity({ area: "", city: "", state: "", pincode: "" });
-          setLoadingCity(false);
-        });
+      const hasMovedSignificantly = !lastFetchedCoords.current ||
+        Math.abs(location.latitude - lastFetchedCoords.current.latitude) > 0.0005 ||
+        Math.abs(location.longitude - lastFetchedCoords.current.longitude) > 0.0005;
+
+      if (hasMovedSignificantly) {
+        setLoadingCity(true);
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${location.latitude}&lon=${location.longitude}&format=json`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            const address = data.address || {};
+
+            const road = address.road || "";
+            const area = address.suburb || address.neighbourhood || "";
+            const cityName = address.city || address.town || address.village || "";
+            const state = address.state || "";
+            const pincode = address.postcode || "";
+
+            setCity({ road, area, city: cityName, state, pincode });
+            setLoadingCity(false);
+            lastFetchedCoords.current = location;
+          })
+          .catch((err) => {
+            console.error("Error fetching address:", err);
+            setLoadingCity(false);
+          });
+      }
     }
   }, [location, locationError]);
 
@@ -92,11 +121,13 @@ const HomeScreen = () => {
 
         <div className="w-full flex items-center gap-2 mt-1 px-10">
           <HiOutlineLocationMarker className="w-5 h-5 text-purple-400" />
-          {(loadingLocation || loadingCity) && (
+          {(loadingLocation || loadingCity) && !city.city ? (
             <span className="text-xs text-gray-500">Detecting location...</span>
-          )}
-          {!loadingLocation && !loadingCity && (city.area || city.city || city.pincode) && (
+          ) : locationError ? (
+            <span className="text-xs text-red-500">{locationError}</span>
+          ) : (
             <span className="text-xs text-gray-700 font-medium">
+              {city.road && `${city.road}, `}
               {city.area && `${city.area}, `}
               {city.city && `${city.city}, `}
               {city.pincode}

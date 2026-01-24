@@ -56,8 +56,14 @@ const UrbanServicesHome = () => {
               `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
             );
             const data = await response.json();
-            const city = data.address.city || data.address.town || data.address.suburb || 'Delhi NCR';
-            setLocation(city);
+            const parts = [];
+            if (data.address.road) parts.push(data.address.road);
+            if (data.address.suburb) parts.push(data.address.suburb);
+            if (data.address.city || data.address.town || data.address.village) parts.push(data.address.city || data.address.town || data.address.village);
+            if (data.address.postcode) parts.push(data.address.postcode);
+
+            const detailedLocation = parts.length > 0 ? parts.join(', ') : 'Delhi NCR';
+            setLocation(detailedLocation);
           } catch (error) {
             console.error("Error detecting location:", error);
           }
@@ -203,7 +209,7 @@ const UrbanServicesHome = () => {
 
             <div className="hidden sm:flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-gray-50 rounded-full border border-gray-100 hover:bg-gray-100 transition-colors cursor-pointer text-xs md:text-sm font-semibold">
               <MapPin size={16} className="text-blue-600" />
-              <span className="truncate max-w-[100px] md:max-w-none">{location}</span>
+              <span className="truncate max-w-[300px] md:max-w-none">{location}</span>
             </div>
           </div>
 

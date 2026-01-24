@@ -2,6 +2,7 @@ import API_CONFIG from "../../config/api.config.js";
 import React, { useState, useEffect } from 'react';
 import Header from "../SubPages/Header";
 import paymentService from "../../services/paymentService";
+import notificationService from "../../services/notificationService";
 import step3 from "../Images/step3.svg";
 import phonepay from "../Images/phonepay.svg";
 import paytm from "../Images/paytm.svg";
@@ -49,12 +50,12 @@ function Payment() {
             }
             setLoading(false);
         };
-        
+
         // Get selected address from location state
         if (location.state && location.state.selectedAddress) {
             setSelectedAddress(location.state.selectedAddress);
         }
-        
+
         fetchCartItems();
     }, [location.state]);
 
@@ -73,10 +74,13 @@ function Payment() {
     ];
 
     // Calculate total
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.quantity * (item.discountedPrice || item.originalPrice || item.price || 0)), 0);
+    const subtotal = cartItems.reduce((sum, item) => {
+        const price = item.grocery?.discounted_price ?? item.grocery?.original_price ?? item.discountedPrice ?? item.originalPrice ?? item.price ?? 0;
+        return sum + (item.quantity * price);
+    }, 0);
     const shipping = 0;
     const total = subtotal + shipping;
-    
+
     // Format address for display (short version)
     const formatAddress = (address) => {
         if (!address) return '';
@@ -95,12 +99,12 @@ function Payment() {
     const formatFullAddress = (address) => {
         if (!address) return '';
         const parts = [];
-        
+
         // Name and Contact
         if (address.fullName) parts.push(`Name: ${address.fullName}`);
         if (address.phoneNumber) parts.push(`Phone: ${address.phoneNumber}`);
         if (address.altPhoneNumber) parts.push(`Alt Phone: ${address.altPhoneNumber}`);
-        
+
         // Address lines
         const addressLines = [];
         if (address.houseNo) addressLines.push(address.houseNo);
@@ -108,7 +112,7 @@ function Payment() {
         if (address.roadName) addressLines.push(address.roadName);
         if (address.landmark) addressLines.push(`Near ${address.landmark}`);
         if (addressLines.length > 0) parts.push(`Address: ${addressLines.join(', ')}`);
-        
+
         // Location
         const locationParts = [];
         if (address.city) locationParts.push(address.city);
@@ -116,11 +120,11 @@ function Payment() {
         if (address.pincode) locationParts.push(address.pincode);
         if (address.country) locationParts.push(address.country);
         if (locationParts.length > 0) parts.push(locationParts.join(', '));
-        
+
         // Additional info
         if (address.companyName) parts.push(`Company: ${address.companyName}`);
         if (address.deliveryInstructions) parts.push(`Instructions: ${address.deliveryInstructions}`);
-        
+
         return parts.join('\n');
     };
 
@@ -130,12 +134,12 @@ function Payment() {
             setError('Please select a payment method');
             return;
         }
-        
+
         if (!selectedAddress) {
             setError('Please select a delivery address');
             return;
         }
-        
+
         setIsProcessing(true);
         setError('');
         try {
@@ -152,9 +156,9 @@ function Payment() {
                     shipping_address: formatFullAddress(selectedAddress), // Use full address with all details
                     payment_method: selectedPayment.type,
                     items: cartItems.map(item => ({
-                        grocery_id: item.grocery_id,
+                        grocery_id: item.grocery?._id || item.grocery_id?._id || item.grocery_id,
                         quantity: item.quantity,
-                        price: (item.discountedPrice ?? item.originalPrice ?? item.grocery?.discounted_price ?? item.grocery?.original_price ?? 0)
+                        price: (item.grocery?.discounted_price ?? item.grocery?.original_price ?? item.discountedPrice ?? item.originalPrice ?? 0)
                     }))
                 }
             };
@@ -165,6 +169,14 @@ function Payment() {
             await paymentService.processPayment(paymentData, {
                 onSuccess: (successData) => {
                     console.log('✅ Grocery Payment successful:', successData);
+
+                    // Add success notification
+                    notificationService.addNotification({
+                        title: 'Order Confirmed!',
+                        message: `Your grocery order #${successData.dbOrder?.order_number || 'Confirmed'} has been successfully placed.`,
+                        type: 'status_confirmed'
+                    });
+
                     setIsProcessing(false);
                     // Clear cart
                     fetch(API_CONFIG.getUrl('/api/gcart/clear'), {
@@ -210,7 +222,7 @@ function Payment() {
                 {selectedAddress && (
                     <div className="bg-white border border-[#E1E1E1] rounded-[20px] mt-4 p-4">
                         <h3 className="font-medium text-base mb-3">Delivery Address</h3>
-                        
+
                         {/* Full Address Details */}
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 mb-3">
                             <div className="text-sm text-gray-700 whitespace-pre-line">
@@ -224,7 +236,7 @@ function Payment() {
                                 </div>
                             )}
                         </div>
-                        
+
                         <button
                             onClick={() => navigate('/home-grocery/edit-all-addresses')}
                             className="text-[#5C3FFF] text-sm underline hover:text-[#4A2FCC]"
@@ -233,7 +245,7 @@ function Payment() {
                         </button>
                     </div>
                 )}
-                
+
                 <div className="bg-[#F1EDFF] flex justify-between items-center w-full rounded-full px-4 py-3 mt-4 border border-[#E7E7E7]">
                     <p className='font-medium text-base'>Total Amount</p>
                     <p className="font-medium text-base">

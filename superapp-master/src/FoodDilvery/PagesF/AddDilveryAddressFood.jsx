@@ -35,6 +35,12 @@ function AddDeliveryAddressFood() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        if (!/^\d{6}$/.test(formData.pincode)) {
+            alert('Pincode must be exactly 6 digits.');
+            return;
+        }
+
         // Handle form submission logic here
         navigate('/home-food/choose-address');
     };
@@ -42,12 +48,12 @@ function AddDeliveryAddressFood() {
     return (
         <div className='min-h-screen bg-gray-50'>
             <HeaderF />
-            
+
             {/* Progress Bar
             <div className='border-b border-gray-200 py-4 bg-white sticky top-16 z-10'>
                 <img src={step1} alt="Step 1" className='w-full px-6' />
             </div> */}
-            
+
             Main Content
             <div className="px-4 py-6 max-w-md mx-auto">
                 {/* Header */}
@@ -186,11 +192,10 @@ function AddDeliveryAddressFood() {
                                     key={type}
                                     type="button"
                                     onClick={() => setSelected(type)}
-                                    className={`px-4 py-2 text-sm rounded-full border transition-colors ${
-                                        selected === type
+                                    className={`px-4 py-2 text-sm rounded-full border transition-colors ${selected === type
                                             ? "bg-orange-600 text-white border-orange-600"
                                             : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                                    }`}
+                                        }`}
                                 >
                                     {type}
                                 </button>

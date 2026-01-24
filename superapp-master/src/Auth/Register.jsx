@@ -64,7 +64,7 @@ function Register() {
         }
 
         // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
             setError('Please enter a valid email address.');
             return;
@@ -159,11 +159,10 @@ function Register() {
                     onBlur={handlePhoneBlur}
                     placeholder="10-digit mobile number"
                     maxLength={10}
-                    className={`w-full p-3 border rounded-full focus:outline-none focus:ring-2 mt-1 ${
-                        phoneError 
-                            ? 'border-red-500 focus:ring-red-500' 
+                    className={`w-full p-3 border rounded-full focus:outline-none focus:ring-2 mt-1 ${phoneError
+                            ? 'border-red-500 focus:ring-red-500'
                             : 'border-gray-300 focus:ring-[#5C3FFF]'
-                    }`}
+                        }`}
                 />
                 {phoneError && (
                     <div className="w-full mt-1 text-red-600 text-xs">{phoneError}</div>

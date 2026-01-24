@@ -446,19 +446,42 @@ const BookService = () => {
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-4 ml-1">Available Slots</p>
                     <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-3">
-                      {timeSlots.map(time => (
-                        <motion.button
-                          key={time}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setSelectedTime(time)}
-                          className={`h-12 rounded-xl text-xs font-black transition-all border-2 ${selectedTime === time
-                            ? 'bg-purple-600 text-white border-purple-600 shadow-lg'
-                            : 'bg-white text-gray-600 border-gray-100 hover:border-purple-200'
-                            }`}
-                        >
-                          {time}
-                        </motion.button>
-                      ))}
+                      {timeSlots.map(time => {
+                        let isDisabled = false;
+                        if (selectedDate) {
+                          const todayStr = new Date().toISOString().split('T')[0];
+                          if (selectedDate === todayStr) {
+                            const [timePart, modifier] = time.split(' ');
+                            let [hours, minutes] = timePart.split(':');
+                            if (hours === '12') hours = '00';
+                            if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+
+                            const slotDate = new Date();
+                            slotDate.setHours(hours, minutes, 0, 0);
+
+                            if (slotDate <= new Date()) {
+                              isDisabled = true;
+                            }
+                          }
+                        }
+
+                        return (
+                          <motion.button
+                            key={time}
+                            whileTap={isDisabled ? {} : { scale: 0.95 }}
+                            onClick={() => !isDisabled && setSelectedTime(time)}
+                            disabled={isDisabled}
+                            className={`h-12 rounded-xl text-xs font-black transition-all border-2 ${isDisabled
+                                ? 'bg-gray-100 text-gray-300 border-gray-50 cursor-not-allowed'
+                                : selectedTime === time
+                                  ? 'bg-purple-600 text-white border-purple-600 shadow-lg'
+                                  : 'bg-white text-gray-600 border-gray-100 hover:border-purple-200'
+                              }`}
+                          >
+                            {time}
+                          </motion.button>
+                        );
+                      })}
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
                       <Clock size={16} />

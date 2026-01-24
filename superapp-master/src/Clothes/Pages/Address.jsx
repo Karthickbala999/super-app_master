@@ -107,6 +107,11 @@ function Address() {
             return;
         }
 
+        if (!/^\d{6}$/.test(formData.pincode)) {
+            alert('Pincode must be exactly 6 digits.');
+            return;
+        }
+
         const addressTypeLabel = selected === 'Others' ? (formData.customLabel?.trim() || 'Others') : selected;
 
         const formattedAddress = {

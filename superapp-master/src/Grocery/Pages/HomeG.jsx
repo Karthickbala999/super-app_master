@@ -2,9 +2,14 @@ import API_CONFIG from "../../config/api.config.js";
 import React, { useState, useEffect, useRef } from 'react';
 import Footer from '../SubPages/Footer';
 import Header from '../SubPages/Header';
+<<<<<<< HEAD
 import { FaFilter, FaHeart, FaEye, FaStar, FaSearch, FaChevronUp, FaChevronDown, FaMicrophone, FaMicrophoneSlash, FaShoppingCart } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { Dialog } from '@headlessui/react';
+=======
+import { FaFilter, FaHeart, FaRegHeart, FaEye, FaStar, FaSearch, FaChevronUp, FaChevronDown, FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
 import banner1 from '../Images/banner1.png';
 import banner2 from '../Images/baner2.png';
 import banner3 from '../Images/banner3.png';
@@ -37,11 +42,71 @@ import chocolateBarsImage from '../Images/chocolate_bars.png';
 // Default placeholder image for items without specific images
 const defaultImage = '/placeholder-image.png';
 
+// Heart Splash Component
+const HeartSplash = ({ breaking }) => {
+  if (breaking) {
+    return (
+      <div className="absolute top-1/2 left-1/2 pointer-events-none z-10" style={{ transform: 'translate(-50%, -50%)' }}>
+        <motion.div
+          initial={{ opacity: 1, x: 0, rotate: 0 }}
+          animate={{ opacity: 0, x: -15, rotate: -45, y: 10 }}
+          transition={{ duration: 0.6 }}
+          className="absolute"
+        >
+          <div className="overflow-hidden w-[6px] h-3">
+            <FaHeart className="text-red-600 w-3 h-3 -ml-[0px]" />
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 1, x: 0, rotate: 0 }}
+          animate={{ opacity: 0, x: 15, rotate: 45, y: 10 }}
+          transition={{ duration: 0.6 }}
+          className="absolute"
+        >
+          <div className="overflow-hidden w-[6px] h-3 ml-[6px]">
+            <FaHeart className="text-red-600 w-3 h-3 -ml-[6px]" />
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="absolute top-1/2 left-1/2 pointer-events-none z-10" style={{ transform: 'translate(-50%, -50%)' }}>
+      {[...Array(12)].map((_, i) => {
+        const angle = (i / 12) * 360;
+        const randomScale = 0.5 + Math.random() * 0.5;
+        return (
+          <motion.div
+            key={i}
+            initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
+            animate={{
+              scale: [0, randomScale, 0],
+              x: Math.cos(angle * Math.PI / 180) * 50,
+              y: Math.sin(angle * Math.PI / 180) * 50,
+              opacity: [1, 1, 0]
+            }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute"
+          >
+            <FaHeart className="text-red-600 w-3 h-3 drop-shadow-sm" />
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+};
+
 const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems, updateCartQuantity, removeFromCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [showQuickViewModal, setShowQuickViewModal] = useState(false);
+<<<<<<< HEAD
   const [adding, setAdding] = useState(false);
+=======
+  const [showSplash, setShowSplash] = useState(false);
+  const [isBreaking, setIsBreaking] = useState(false);
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -121,13 +186,13 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 w-full max-w-[200px] mx-auto"
+      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-full max-w-[200px] mx-auto relative z-0"
     >
       <div className="relative">
         <img
           src={item.image}
           alt={`${item.name} - ${item.description}`}
-          className="w-full h-[120px] object-contain p-2 bg-white"
+          className="w-full h-[120px] object-contain p-2 bg-white rounded-t-lg"
           onError={(e) => {
             console.error('Failed to load image:', item.image);
             e.target.onerror = null; // Prevent infinite loop
@@ -140,17 +205,37 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
             // Optional: You can add any onLoad handling here if needed
           }}
         />
-        <div className="absolute top-2 right-2 flex space-x-1">
-          <button
-            className={`p-1 rounded-full shadow-md ${isInWishlist
-              ? 'bg-purple-600 text-white'
-              : 'bg-white text-gray-500 hover:text-gray-700'
-              }`}
-            onClick={() => addToWishlist(item, quantity)}
-            title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-          >
-            <FaHeart className="w-5 h-5" />
-          </button>
+        <div className="absolute top-2 right-2 flex space-x-1 z-10">
+          <div className="relative">
+            <button
+              className={`p-1.5 rounded-full shadow-sm transition-all active:scale-95 border ${isInWishlist
+                ? 'bg-red-50 border-red-100 text-red-500'
+                : 'bg-white border-gray-100 text-gray-400 hover:text-red-400'
+                }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isInWishlist) {
+                  setIsBreaking(true);
+                  setShowSplash(true);
+                  addToWishlist(item, quantity);
+                  setTimeout(() => {
+                    setShowSplash(false);
+                    setIsBreaking(false);
+                  }, 800);
+                } else {
+                  setIsBreaking(false);
+                  setShowSplash(true);
+                  addToWishlist(item, quantity);
+                  setTimeout(() => setShowSplash(false), 1000);
+                }
+              }}
+              title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            >
+              <FaHeart className={`w-4 h-4 transition-colors ${isInWishlist ? 'fill-current' : 'hidden'}`} />
+              <FaRegHeart className={`w-4 h-4 transition-colors ${!isInWishlist ? 'block' : 'hidden'}`} />
+            </button>
+            {showSplash && <HeartSplash breaking={isBreaking} />}
+          </div>
           <button
             className="p-1 rounded-full shadow-md bg-white text-gray-500 hover:text-gray-700"
             onClick={openQuickView}
@@ -195,6 +280,7 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
         </div>
 
         <div className="flex justify-between items-center flex-wrap gap-y-1 mt-2">
+<<<<<<< HEAD
           <div className="flex flex-row items-center w-full gap-1">
             {!isInCart ? (
               <button
@@ -221,18 +307,47 @@ const GroceryCard = ({ item, addToCart, addToWishlist, cartItems, wishlistItems,
                 <button
                   className="w-8 h-8 flex items-center justify-center text-[#00BB1C] hover:bg-green-50 transition-colors font-bold text-lg"
                   onClick={handleDecrement}
+=======
+          <div className="flex flex-row items-center w-full gap-1 h-9">
+            <AnimatePresence mode="wait" initial={false}>
+              {!isInCart ? (
+                <motion.button
+                  key="add-to-cart-btn"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  className="bg-[#00BB1C] hover:bg-[#009B16] text-white text-sm font-bold py-1.5 px-4 rounded-lg w-full transition-colors shadow-sm h-full"
+                  onClick={() => addToCart(item, 1)}
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
                 >
-                  -
-                </button>
-                <span className="flex-1 text-center font-bold text-gray-800 text-sm">{quantity}</span>
-                <button
-                  className="w-8 h-8 flex items-center justify-center text-[#00BB1C] hover:bg-green-50 transition-colors font-bold text-lg"
-                  onClick={handleIncrement}
+                  Add to Cart
+                </motion.button>
+              ) : (
+                <motion.div
+                  key="quantity-controls"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center justify-between w-full bg-white border border-[#00BB1C] rounded-lg overflow-hidden h-full"
                 >
-                  +
-                </button>
-              </div>
-            )}
+                  <button
+                    className="w-8 h-full flex items-center justify-center text-[#00BB1C] hover:bg-green-50 transition-colors font-bold text-lg"
+                    onClick={handleDecrement}
+                  >
+                    -
+                  </button>
+                  <span className="flex-1 text-center font-bold text-gray-800 text-sm">{quantity}</span>
+                  <button
+                    className="w-8 h-full flex items-center justify-center text-[#00BB1C] hover:bg-green-50 transition-colors font-bold text-lg"
+                    onClick={handleIncrement}
+                  >
+                    +
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -596,6 +711,7 @@ function Groceries() {
   }, []);
 
   const addToCart = async (item, quantity) => {
+<<<<<<< HEAD
     return new Promise((resolve) => {
       setPendingItem({ item, quantity, resolve });
       setShowConfirmModal(true);
@@ -619,6 +735,28 @@ function Groceries() {
         quantity: qtyToConfirm
       };
 
+=======
+    // Optimistic Update: Add item immediately with a temp ID
+    const tempId = `temp_${Date.now()}`;
+    const tempCartItem = {
+      ...item,
+      _id: tempId,
+      id: tempId,
+      grocery_id: item._id || item.id,
+      groceryId: item._id || item.id,
+      quantity: quantity,
+      isTemp: true
+    };
+
+    setCartItems(prev => [...prev, tempCartItem]);
+
+    try {
+      const cartPayload = {
+        grocery_id: item._id || item.id,
+        quantity: quantity
+      };
+
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
       const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
         method: 'POST',
         headers: {
@@ -629,22 +767,82 @@ function Groceries() {
       });
 
       if (response.ok) {
+<<<<<<< HEAD
         toast.success(`Added ${qtyToConfirm} ${itemToConfirm.name} to cart!`);
         await fetchCartItems();
         if (resolver) resolver(true);
+=======
+        const data = await response.json();
+        const serverItem = data.data; // The real item from server with real _id
+
+        // Now synchronize the local state
+        setCartItems(prev => {
+          // Find if the temp item still exists or was removed
+          const exists = prev.find(i => i._id === tempId);
+          if (!exists) {
+            // User removed it while it was pending. We must delete it from server now.
+            removeFromCart(serverItem._id);
+            return prev;
+          }
+
+          // Update the item with real ID and remove isTemp
+          // Also check if quantity has drifted (user clicked + while pending)
+          return prev.map(i => {
+            if (i._id === tempId) {
+              const currentQty = i.quantity;
+
+              // If user increased quantity while pending, we need to sync that to server
+              if (currentQty !== quantity) {
+                // Determine the correct ID to use for update. We use serverItem._id now.
+                // We must call the un-modified update function logic here, essentially triggering the PUT
+                // Since updateCartQuantity handles "temp" checks, calling it with real id works.
+                updateCartQuantity(serverItem._id, currentQty);
+              }
+
+              return { ...i, ...serverItem, _id: serverItem._id, id: serverItem._id, quantity: currentQty, isTemp: false };
+            }
+            return i;
+          });
+        });
+
+        showToast(`Added ${item.name} to cart!`, 'success');
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
       } else {
+        // Revert on failure
+        setCartItems(prev => prev.filter(i => i._id !== tempId));
         const errorData = await response.json();
+<<<<<<< HEAD
         toast.error(errorData.message || 'Failed to add to cart');
         if (resolver) resolver(false);
+=======
+        throw new Error(errorData.message || 'Failed to add to cart');
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
       }
     } catch (err) {
+<<<<<<< HEAD
       console.error('Error adding to cart:', err);
       toast.error('Error adding item to cart');
       if (resolver) resolver(false);
+=======
+      setCartItems(prev => prev.filter(i => i._id !== tempId));
+      console.error('Error adding item to cart:', err);
+      showToast('Error adding item to cart', 'error');
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
     }
   };
 
   const updateCartQuantity = async (cartItemId, quantity) => {
+    // Optimistic Update
+    setCartItems(prev => prev.map(item =>
+      (item._id === cartItemId || item.id === cartItemId) ? { ...item, quantity } : item
+    ));
+
+    // If it's a temp item, do not call API yet. 
+    // The addToCart success handler will see the quantity change and trigger this function with the REAL ID later.
+    if (typeof cartItemId === 'string' && cartItemId.startsWith('temp_')) {
+      return;
+    }
+
     try {
       const response = await fetch(API_CONFIG.getUrl(`${API_CONFIG.ENDPOINTS.GROCERY_CART}/${cartItemId}`), {
         method: 'PUT',
@@ -655,6 +853,7 @@ function Groceries() {
         body: JSON.stringify({ quantity })
       });
 
+<<<<<<< HEAD
       if (response.ok) {
         // toast.success('Cart updated'); // Optional: reduce toast spam
         await fetchCartItems();
@@ -665,10 +864,27 @@ function Groceries() {
     } catch (err) {
       console.error('Error updating cart:', err);
       toast.error('Error updating cart');
+=======
+      if (!response.ok) {
+        // Revert or show error could go here, but for "Blinkit speed" we usually assume success or silent fail
+        // Ideally, fetchCartItems() to reset state on error
+        console.error("Failed to update cart quantity on server");
+      }
+    } catch (err) {
+      console.error('Error updating cart:', err);
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
     }
   };
 
   const removeFromCart = async (cartItemId) => {
+    // Optimistic Remove
+    setCartItems(prev => prev.filter(item => item._id !== cartItemId && item.id !== cartItemId));
+
+    // If temp, just local remove is enough (addToCart handler handles the rest)
+    if (typeof cartItemId === 'string' && cartItemId.startsWith('temp_')) {
+      return;
+    }
+
     try {
       const response = await fetch(API_CONFIG.getUrl(`${API_CONFIG.ENDPOINTS.GROCERY_CART}/${cartItemId}`), {
         method: 'DELETE',
@@ -679,6 +895,7 @@ function Groceries() {
       });
 
       if (response.ok) {
+<<<<<<< HEAD
         toast.success('Item removed from cart');
         await fetchCartItems();
       } else {
@@ -688,6 +905,14 @@ function Groceries() {
     } catch (err) {
       console.error('Error removing from cart:', err);
       toast.error('Error removing item from cart');
+=======
+        showToast('Item removed', 'success');
+      } else {
+        console.error("Failed to remove item from server");
+      }
+    } catch (err) {
+      console.error('Error removing from cart:', err);
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
     }
   };
 
@@ -725,30 +950,62 @@ function Groceries() {
     }
   };
   const addToWishlist = async (item, quantity = 1) => {
-    try {
-      // Check if item already exists in wishlist
-      const existingItem = wishlistItems.find(wishlistItem =>
-        wishlistItem.grocery_id === item.id && wishlistItem.category === item.category
-      );
+    // Snapshot for rollback
+    const previousWishlist = [...wishlistItems];
 
-      if (existingItem) {
-        // Remove from wishlist (DELETE)
+    // Check if item already exists in wishlist
+    const existingItem = wishlistItems.find(wishlistItem =>
+      (wishlistItem.grocery_id === item.id || wishlistItem.groceryId === item.id) &&
+      wishlistItem.category === item.category
+    );
+
+    if (existingItem) {
+      // OPTIMISTIC REMOVE: Update UI immediately
+      setWishlistItems(prev => prev.filter(i => i.id !== existingItem.id));
+
+      try {
         const response = await fetch(API_CONFIG.getUrl(`/api/gwishlist/${existingItem.id}`), {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
+            'Authorization': 'Bearer demo-token'
           }
         });
 
         if (response.ok) {
+<<<<<<< HEAD
           toast.success(`Removed ${item.name} from wishlist!`);
           await fetchWishlist(); // Refresh wishlist
+=======
+          showToast(`Removed ${item.name} from wishlist!`, 'success');
+          // No need to fetch immediately, UI is already correct
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
         } else {
           throw new Error('Failed to remove from wishlist');
         }
-      } else {
-        // Add to wishlist (POST)
+      } catch (err) {
+        // Rollback on error
+        console.error('Error removing from wishlist:', err);
+        setWishlistItems(previousWishlist);
+        showToast('Error removing from wishlist', 'error');
+      }
+
+    } else {
+      // OPTIMISTIC ADD: Update UI immediately
+      const tempId = `temp_${Date.now()}`;
+      const tempItem = {
+        ...item,
+        id: tempId,
+        _id: tempId,
+        grocery_id: item.id,
+        groceryId: item.id,
+        quantity: quantity,
+        isTemp: true
+      };
+
+      setWishlistItems(prev => [...prev, tempItem]);
+
+      try {
         const payload = {
           grocery_id: item._id || item.id,
           name: item.name,
@@ -763,22 +1020,44 @@ function Groceries() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
+            'Authorization': 'Bearer demo-token'
           },
           body: JSON.stringify(payload)
         });
 
         if (response.ok) {
+<<<<<<< HEAD
           toast.success(`Added ${item.name} to wishlist!`);
           await fetchWishlist(); // Refresh wishlist
+=======
+          const data = await response.json();
+          const serverItem = data.data || data;
+
+          showToast(`Added ${item.name} to wishlist!`, 'success');
+
+          if (serverItem && (serverItem.id || serverItem._id)) {
+            const realId = serverItem.id || serverItem._id;
+            setWishlistItems(prev => prev.map(i =>
+              i.id === tempId ? { ...i, id: realId, _id: realId, isTemp: false } : i
+            ));
+          }
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
         } else {
           throw new Error('Failed to add to wishlist');
         }
+      } catch (err) {
+        // Rollback on error
+        console.error('Error updating wishlist:', err);
+        setWishlistItems(previousWishlist);
+        showToast('Error updating wishlist. Please try again.', 'error');
       }
+<<<<<<< HEAD
 
     } catch (err) {
       console.error('Error updating wishlist:', err);
       toast.error('Error updating wishlist. Please try again.');
+=======
+>>>>>>> 115cf61 (worked on grocery and login page and email validation , address validation for pincode)
     }
   };
 
