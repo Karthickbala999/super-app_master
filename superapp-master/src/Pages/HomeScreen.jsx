@@ -8,21 +8,27 @@ import bannerUrban from "../Images/HomeScreen/bannerUrban.jpg";
 import bannerCityMove from "../Images/HomeScreen/cityMoveBanner.jpg";
 import bellIcon from "../Images/HomeScreen/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
-import { HiOutlineUser, HiOutlineLocationMarker } from "react-icons/hi";
+import { HiOutlineUser, HiOutlineLocationMarker, HiLockClosed } from "react-icons/hi";
+import { motion } from "framer-motion";
 
-const banners = [
-  { img: bannerUrban, alt: "City Serve", path: "/urban-services" },
-  { img: bannerClothes, alt: "E-commerce", path: "/home-clothes" },
-  { img: bannerGroceries, alt: "Grocery", path: "/home-grocery" },
-  { img: bannerFood, alt: "Food", path: "/home-food" },
-  { img: bannerHotel, alt: "Hotel", path: "/home-hotel" },
-  { img: bannerTaxi, alt: "Taxi", path: "/home-taxi" },
-  {
-    img: bannerCityMove,
-    alt: "City Move",
-    path: "/porter",
-  },
-];
+const ComingSoonOverlay = () => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+    className="absolute inset-0 z-40 flex items-center justify-center bg-black/10 backdrop-blur-[1px]"
+  >
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.1, duration: 0.4 }}
+      className="bg-black/40 backdrop-blur-xl px-4 py-1.5 rounded-full border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] flex items-center gap-2"
+    >
+      <HiLockClosed size={12} className="text-gray-300" />
+      <span className="text-gray-200/90 text-[10px] font-medium tracking-[0.2em] uppercase">Coming Soon</span>
+    </motion.div>
+  </motion.div>
+);
 
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -165,62 +171,62 @@ const HomeScreen = () => {
 
           {/* Food (Square) */}
           <div
-            className="col-span-1 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-95 cursor-pointer bg-white group border-2 border-white/30"
-            onClick={() => navigate("/home-food")}
+            className="col-span-1 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl bg-white border-2 border-white/30 cursor-not-allowed"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-            <img src={bannerFood} alt="Food" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <ComingSoonOverlay />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10 opacity-60" />
+            <img src={bannerFood} alt="Food" loading="lazy" className="w-full h-full object-cover opacity-60 blur-[1px]" />
             <div className="absolute bottom-4 left-4 z-20">
-              <h2 className="text-white text-lg font-black tracking-tight uppercase">Food</h2>
+              <h2 className="text-white text-lg font-black tracking-tight uppercase opacity-60">Food</h2>
             </div>
           </div>
 
           <div
-            className="col-span-2 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl transition-all duration-300 hover:scale-[1.01] active:scale-95 cursor-pointer bg-white group border-2 border-white/30"
-            onClick={() => navigate("/porter")}
+            className="col-span-2 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl bg-white border-2 border-white/30 cursor-not-allowed"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 via-blue-600/40 to-transparent z-10" />
-            <img src={bannerCityMove} alt="City Move" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <ComingSoonOverlay />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 via-blue-600/40 to-transparent z-10 opacity-60" />
+            <img src={bannerCityMove} alt="City Move" loading="lazy" className="w-full h-full object-cover opacity-60 blur-[1px]" />
             <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-center p-8">
-              <h2 className="text-white text-3xl font-black tracking-tighter uppercase leading-none">City Move</h2>
-              <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest mt-1">Instant Delivery</p>
+              <h2 className="text-white text-3xl font-black tracking-tighter uppercase leading-none opacity-60">City Move</h2>
+              <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest mt-1 opacity-60">Instant Delivery</p>
             </div>
           </div>
 
           {/* Hotel (Square) */}
           <div
-            className="col-span-1 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-95 cursor-pointer bg-white group border-2 border-white/30"
-            onClick={() => navigate("/home-hotel")}
+            className="col-span-1 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl bg-white border-2 border-white/30 cursor-not-allowed"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-            <img src={bannerHotel} alt="Hotel" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <ComingSoonOverlay />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10 opacity-60" />
+            <img src={bannerHotel} alt="Hotel" loading="lazy" className="w-full h-full object-cover opacity-60 blur-[1px]" />
             <div className="absolute bottom-4 left-4 z-20">
-              <h2 className="text-white text-lg font-black tracking-tight uppercase">Hotel</h2>
+              <h2 className="text-white text-lg font-black tracking-tight uppercase opacity-60">Hotel</h2>
             </div>
           </div>
 
           {/* Taxi (Square) */}
           <div
-            className="col-span-1 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-95 cursor-pointer bg-white group border-2 border-white/30"
-            onClick={() => navigate("/home-taxi")}
+            className="col-span-1 row-span-1 relative rounded-[2rem] overflow-hidden shadow-xl bg-white border-2 border-white/30 cursor-not-allowed"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-            <img src={bannerTaxi} alt="Taxi" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <ComingSoonOverlay />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10 opacity-60" />
+            <img src={bannerTaxi} alt="Taxi" loading="lazy" className="w-full h-full object-cover opacity-60 blur-[1px]" />
             <div className="absolute bottom-4 left-4 z-20">
-              <h2 className="text-white text-lg font-black tracking-tight uppercase">Taxi</h2>
+              <h2 className="text-white text-lg font-black tracking-tight uppercase opacity-60">Taxi</h2>
             </div>
           </div>
 
           {/* City Serve (Bottom - Wide Rectangle) */}
           <div
-            className="col-span-2 row-span-1 border-2 border-white/30 relative rounded-[2rem] overflow-hidden shadow-xl transition-all duration-300 hover:scale-[1.01] active:scale-95 cursor-pointer bg-white group"
-            onClick={() => navigate("/urban-services")}
+            className="col-span-2 row-span-1 border-2 border-white/30 relative rounded-[2rem] overflow-hidden shadow-xl bg-white cursor-not-allowed"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10" />
-            <img src={bannerUrban} alt="City Serve" loading="lazy" className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" />
+            <ComingSoonOverlay />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10 opacity-60" />
+            <img src={bannerUrban} alt="City Serve" loading="lazy" className="w-full h-full object-cover opacity-60 blur-[1px]" />
             <div className="absolute inset-y-0 left-0 z-20 flex flex-col justify-center p-8">
-              <h2 className="text-white text-3xl font-black tracking-tighter uppercase leading-none">City Serve</h2>
-              <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest mt-1">Experts at your door</p>
+              <h2 className="text-white text-3xl font-black tracking-tighter uppercase leading-none opacity-60">City Serve</h2>
+              <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest mt-1 opacity-60">Experts at your door</p>
             </div>
           </div>
         </div>
