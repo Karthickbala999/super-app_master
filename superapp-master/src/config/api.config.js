@@ -1,4 +1,4 @@
-// Centralized API Configuration hello
+// Centralized API Configuration hello world
 // This file manages all API URLs and endpoints dynamically
 
 const API_CONFIG = {
