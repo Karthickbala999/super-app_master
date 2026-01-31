@@ -646,10 +646,7 @@ function Groceries() {
     try {
       // Use a default user ID (1) for demo purposes since login is disabled
       const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
-        }
+        headers: API_CONFIG.getAuthHeaders()
       });
 
       if (response.ok) {
@@ -707,10 +704,7 @@ function Groceries() {
       };
       const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token'
-        },
+        headers: API_CONFIG.getAuthHeaders(),
         body: JSON.stringify(cartPayload)
       });
 
@@ -747,10 +741,7 @@ function Groceries() {
     try {
       const response = await fetch(API_CONFIG.getUrl(`${API_CONFIG.ENDPOINTS.GROCERY_CART}/${cartItemId}`), {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token'
-        },
+        headers: API_CONFIG.getAuthHeaders(),
         body: JSON.stringify({ quantity })
       });
 
@@ -779,10 +770,7 @@ function Groceries() {
     try {
       const response = await fetch(API_CONFIG.getUrl(`${API_CONFIG.ENDPOINTS.GROCERY_CART}/${cartItemId}`), {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token'
-        }
+        headers: API_CONFIG.getAuthHeaders()
       });
 
       if (response.ok) {

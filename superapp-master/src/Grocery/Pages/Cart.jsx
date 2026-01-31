@@ -33,10 +33,7 @@ function Cart() {
       setError(null);
       try {
         const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
-          }
+          headers: API_CONFIG.getAuthHeaders()
         });
 
         if (response.ok) {
@@ -101,10 +98,7 @@ function Cart() {
     try {
       const response = await fetch(API_CONFIG.getUrl(`/api/gcart/${cartItemId}`), {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
-        }
+        headers: API_CONFIG.getAuthHeaders()
       });
 
       if (response.ok) {
@@ -124,10 +118,7 @@ function Cart() {
     try {
       const response = await fetch(API_CONFIG.getUrl(`/api/gcart/${itemId}`), {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
-        },
+        headers: API_CONFIG.getAuthHeaders(),
         body: JSON.stringify({ quantity: newQuantity })
       });
 
@@ -152,10 +143,7 @@ function Cart() {
     try {
       const response = await fetch(API_CONFIG.getUrl('/api/gcart/clear'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer demo-token' // Demo token for bypassing auth
-        }
+        headers: API_CONFIG.getAuthHeaders()
       });
 
       if (response.ok) {
