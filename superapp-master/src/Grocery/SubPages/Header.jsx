@@ -190,10 +190,7 @@ function Header() {
             try {
                 // Cart Count
                 const cartResponse = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.GROCERY_CART), {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer demo-token'
-                    }
+                    headers: API_CONFIG.getAuthHeaders()
                 });
 
                 if (cartResponse.ok) {

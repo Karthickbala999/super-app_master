@@ -7,6 +7,8 @@ import AddressService from "../../services/addressService";
 import Delete from '../Images/delete.svg';
 import Footer from '../SubPages/Footer';
 import { FaTrash } from 'react-icons/fa';
+import paymentService from "../../services/paymentService";
+import notificationService from "../../services/notificationService";
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -159,8 +161,10 @@ function Cart() {
     }
   };
 
+
+
   // Proceed to buy (navigate to payment)
-  const handleProceedToBuy = () => {
+  const handleProceedToBuy = async () => {
     if (cartItems.length === 0) {
       alert('Your cart is empty! Please add items before proceeding.');
       return;
@@ -171,8 +175,66 @@ function Cart() {
       return;
     }
 
-    // Pass the selected address to the payment page
-    navigate('/home-grocery/payment', { state: { selectedAddress } });
+    // Calculate total
+    const subtotal = cartItems.reduce((sum, item) => {
+      const price = item.discountedPrice || 0;
+      return sum + (item.quantity * price);
+    }, 0);
+    const shipping = 0;
+    const total = subtotal + shipping;
+
+    try {
+      const paymentData = {
+        amount: total,
+        currency: 'INR',
+        order_model: 'GroceryOrder',
+        email: selectedAddress?.email || 'user@example.com',
+        contact: selectedAddress?.phoneNumber || '+91 9876543210',
+        description: `Grocery Order - ${cartItems.length} items`,
+        order_data: {
+          total_amount: total,
+          shipping_address: formatFullAddress(selectedAddress),
+          payment_method: 'razorpay',
+          items: cartItems.map(item => ({
+            grocery_id: item.grocery?._id || item.grocery_id || item._id, // Robust ID check
+            quantity: item.quantity,
+            price: item.discountedPrice || 0
+          }))
+        }
+      };
+
+      await paymentService.processPayment(paymentData, {
+        onSuccess: async (successData) => {
+          notificationService.addNotification({
+            title: 'Order Confirmed!',
+            message: `Your grocery order #${successData.dbOrder?.order_number || 'Confirmed'} has been successfully placed.`,
+            type: 'status_confirmed'
+          });
+
+          // Silent clear cart
+          try {
+            await fetch(API_CONFIG.getUrl('/api/gcart/clear'), {
+              method: 'POST',
+              headers: API_CONFIG.getAuthHeaders()
+            });
+            setCartItems([]);
+          } catch (e) {
+            console.error('Failed to clear cart remotely', e);
+          }
+
+          // Go to invoice page
+          navigate(`/home-grocery/invoice/${successData.dbOrder._id || successData.dbOrder.id}`);
+        },
+        onError: (error) => {
+          console.error('Payment failed:', error);
+          alert('Payment failed: ' + error.message);
+        }
+      });
+
+    } catch (err) {
+      console.error('Payment initialization error:', err);
+      alert('Could not start payment: ' + err.message);
+    }
   };
 
   // Format address for display (short version for dropdown)

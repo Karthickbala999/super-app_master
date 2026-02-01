@@ -4,6 +4,7 @@ import Header from "../SubPages/Header";
 import step1 from "../Images/step1.svg";
 import gps from "../Images/gps.svg";
 import { useNavigate } from 'react-router-dom';
+import AddressService from "../../services/addressService";
 
 function EditAddressValues() {
     const [selected, setSelected] = useState("Home");
@@ -33,7 +34,7 @@ function EditAddressValues() {
         }
     }, [address]);
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
         const updatedAddress = {
             fullName,
             phoneNumber,
@@ -51,10 +52,23 @@ function EditAddressValues() {
             selectedAddressType: selected
         };
 
-        const existingAddresses = JSON.parse(localStorage.getItem('userAddresses')) || [];
-        existingAddresses[index] = updatedAddress;
-        localStorage.setItem('userAddresses', JSON.stringify(existingAddresses));
-        navigate('/home-grocery/edit-all-addresses', { replace: true });
+        // Use ID from the address object passed in location state
+        const addressId = address?._id || address?.id;
+
+        if (addressId) {
+            try {
+                await AddressService.updateAddress(addressId, updatedAddress);
+                navigate('/home-grocery/edit-all-addresses', { replace: true });
+            } catch (error) {
+                console.error('Error updating address:', error);
+                alert('Failed to update address: ' + (error.message || 'Unknown error'));
+            }
+        } else {
+            // Fallback for weird legacy naming mismatch or missing ID (shouldn't happen with new Service)
+            // If no ID, we might need to assume it was a direct save or handle gracefully
+            console.error("No address ID found for update");
+            alert("Error: Cannot update address without ID");
+        }
     };
 
     const buttons = ["Home", "Office", "Others"];

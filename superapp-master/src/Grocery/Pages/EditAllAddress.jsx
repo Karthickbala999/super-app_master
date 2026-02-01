@@ -31,9 +31,13 @@ function EditAllAddress() {
         };
     }, []);
 
-    const handleDeleteAddress = async (indexToDelete) => {
+    const handleDeleteAddress = async (index, addressId) => {
         try {
-            await AddressService.deleteAddress(indexToDelete);
+            // Use addressId if available (preferred), otherwise might fallback to index if we really have to, 
+            // but for safe deletion we should really require an ID.
+            // Our Service now expects ID. 
+            // However, local-only addresses might have a string ID we generated.
+            await AddressService.deleteAddress(addressId);
             // Reload addresses after deletion
             await loadAddresses();
         } catch (error) {
@@ -75,7 +79,7 @@ function EditAllAddress() {
                                             <img src={edit} alt="edit" className="w-4 h-4" />
                                             <span className='text-[#5C3FFF] font-semibold text-sm'>Edit</span>
                                         </div>
-                                        <div className="flex items-center space-x-1 cursor-pointer" onClick={() => handleDeleteAddress(index)}>
+                                        <div className="flex items-center space-x-1 cursor-pointer" onClick={() => handleDeleteAddress(index, address._id || address.id)}>
                                             <img src={del} alt="delete" className="w-4 h-4" />
                                             <span className='text-red-500 font-semibold text-sm'>Delete</span>
                                         </div>
